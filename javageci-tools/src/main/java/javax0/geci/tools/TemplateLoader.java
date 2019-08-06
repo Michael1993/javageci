@@ -3,6 +3,8 @@ package javax0.geci.tools;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -35,16 +37,15 @@ public class TemplateLoader {
         }
 
         try {
-            final var resource = loader.getResource(template);
+            final URL resource = loader.getResource(template);
             if (resource != null) {
-                return Files.readString(
-                        Paths.get(fix(resource.getFile())))
-                        .replaceAll("\r\n", "\n");
+                final byte[] bytes = Files.readAllBytes(Paths.get(fix(resource.getFile()).replaceAll("\r\n", "\n")));
+                return new String(bytes, StandardCharsets.UTF_8);
             } else {
                 return "/* template '" + template + "' was not loaded */";
             }
         } catch (IOException e) {
-            final var sw = new PrintWriter(new StringWriter());
+            final PrintWriter sw = new PrintWriter(new StringWriter());
             e.printStackTrace(sw);
             return "/* template '" + template + "' was not loaded : \n"
                     + sw.toString()

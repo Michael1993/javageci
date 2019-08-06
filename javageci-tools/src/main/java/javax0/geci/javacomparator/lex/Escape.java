@@ -21,7 +21,7 @@ public class Escape {
         if (sb.length() == 0) {
             throw new IllegalArgumentException("Source ended inside a string.");
         }
-        final var nextCh = sb.charAt(0);
+        final char nextCh = sb.charAt(0);
         int esindex = escapes.indexOf(nextCh);
         if (esindex == -1) {
             if (nextCh >= '0' && nextCh <= '3') {

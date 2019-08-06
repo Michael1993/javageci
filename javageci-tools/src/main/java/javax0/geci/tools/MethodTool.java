@@ -16,7 +16,7 @@ public class MethodTool {
     private Function<String, String> decorator;
 
     public static MethodTool with(Method method) {
-        var it = new MethodTool();
+        MethodTool it = new MethodTool();
         it.method = method;
         return it;
     }
@@ -51,8 +51,8 @@ public class MethodTool {
     }
 
     public String signature() {
-        final var types = method.getGenericParameterTypes();
-        final var sb = new StringBuilder();
+        final Type[] types = method.getGenericParameterTypes();
+        final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < types.length; i++) {
             if (i > 0) {
                 sb.append(", ");
@@ -63,8 +63,8 @@ public class MethodTool {
                 sb.append(getArg(types[i]));
             }
         }
-        var arglist = sb.toString();
-        var exceptionlist = Arrays.stream(method.getGenericExceptionTypes())
+        String arglist = sb.toString();
+        String exceptionlist = Arrays.stream(method.getGenericExceptionTypes())
                 .map(GeciReflectionTools::getGenericTypeName)
                 .collect(Collectors.joining(","));
         final String modifiers;
@@ -82,7 +82,7 @@ public class MethodTool {
     }
 
     public String call() {
-        var arglist = Arrays.stream(method.getGenericParameterTypes())
+        String arglist = Arrays.stream(method.getGenericParameterTypes())
                 .map(this::getArgCall)
                 .collect(Collectors.joining(","));
 
@@ -90,18 +90,18 @@ public class MethodTool {
     }
 
     public String getArgCall(Type t) {
-        final var normType = GeciReflectionTools.getGenericTypeName(t);
+        final String normType = GeciReflectionTools.getGenericTypeName(t);
         return "arg" + argCounter.addAndGet(1);
     }
 
     public String getVarArg(Type t) {
-        final var normType = GeciReflectionTools.getGenericTypeName(t);
+        final String normType = GeciReflectionTools.getGenericTypeName(t);
         final String actualType = normType.substring(0, normType.length() - 2) + "... ";
         return actualType + " arg" + argCounter.addAndGet(1);
     }
 
     public String getArg(Type t) {
-        final var normType = GeciReflectionTools.getGenericTypeName(t);
+        final String normType = GeciReflectionTools.getGenericTypeName(t);
         return normType + " arg" + argCounter.addAndGet(1);
     }
 

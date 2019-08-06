@@ -1,5 +1,6 @@
 package javax0.geci.docugen;
 
+import java.util.regex.Matcher;
 import javax0.geci.annotations.Geci;
 import javax0.geci.api.*;
 
@@ -48,12 +49,12 @@ public class SnippetCollector extends AbstractSnippeter implements Distant {
     @Override
     public void processEx(Source source) throws Exception {
         SnippetBuilder builder = null;
-        for (final var line : source.getLines()) {
-            final var starter = config.snippetStart.matcher(line);
+        for (final String line : source.getLines()) {
+            final Matcher starter = config.snippetStart.matcher(line);
             if (builder == null && starter.find()) {
                 builder = new SnippetBuilder(starter.group(1));
             } else if (builder != null) {
-                final var stopper = config.snippetEnd.matcher(line);
+                final Matcher stopper = config.snippetEnd.matcher(line);
                 // skip
                 if (stopper.find()) {
                     snippets.put(builder.snippetName(), builder.build(),source);

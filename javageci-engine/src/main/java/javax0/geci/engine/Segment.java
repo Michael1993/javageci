@@ -21,7 +21,7 @@ public class Segment implements javax0.geci.api.Segment {
         this.openingTabStop = tabStop;
         this.tabStop = tabStop;
         this.cparams = new javax0.geci.tools.CompoundParams();
-        this.originals = List.of();
+        this.originals = new ArrayList<>();
     }
 
     public Segment(int tabStop, CompoundParams cparams, List<String> originals) {
@@ -86,7 +86,7 @@ public class Segment implements javax0.geci.api.Segment {
     @Override
     public void setContent(String content) {
         lines.clear();
-        lines.addAll(List.of(content.split("\n", -1)));
+        lines.addAll(Arrays.asList(content.split("\n", -1)));
     }
 
     @Override
@@ -97,7 +97,7 @@ public class Segment implements javax0.geci.api.Segment {
     public Segment write(javax0.geci.api.Segment segment) {
         if (segment != null) {
             if (segment instanceof Segment) {
-                var other = (Segment) segment;
+                Segment other = (Segment) segment;
                 other.lines.forEach(line -> write(line));
             } else {
                 throw new GeciException("Segment " + segment + " is not instance of " + Segment.class.getName() +

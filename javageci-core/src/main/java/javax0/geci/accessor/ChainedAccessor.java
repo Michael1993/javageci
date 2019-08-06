@@ -1,6 +1,7 @@
 package javax0.geci.accessor;
 
 import javax0.geci.api.Segment;
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.GeciReflectionTools;
 
 import java.lang.reflect.Field;
@@ -11,7 +12,7 @@ import static javax0.geci.tools.CaseTools.ucase;
 public class ChainedAccessor extends AbstractAccessor {
 
     private static final Set<String> accessModifiers =
-            Set.of("public", "private", "protected", "package");
+            GeciCompatibilityTools.createSet("public", "private", "protected", "package");
 
     public ChainedAccessor(){
         config.setterNameGenerator = name -> "with" + ucase(name);
@@ -21,8 +22,8 @@ public class ChainedAccessor extends AbstractAccessor {
     @Override
     protected void writeSetter(Field field, String name, String setterName,
                                String type, String access, Segment segment) {
-        final var klass = field.getDeclaringClass();
-        final var fullyQualified = GeciReflectionTools.getSimpleGenericClassName(klass);
+        final Class<?> klass = field.getDeclaringClass();
+        final String fullyQualified = GeciReflectionTools.getSimpleGenericClassName(klass);
         segment._r("%s %s %s(%s %s){",
                 access, fullyQualified, setterName, type, name)
                 .write("this.%s = %s;", name, name)

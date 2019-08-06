@@ -1,5 +1,7 @@
 package javax0.geci.jamal.reflection;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import javax0.geci.jamal.Reflection;
 import javax0.geci.jamal.util.EntityStringer;
 import javax0.geci.tools.GeciReflectionTools;
@@ -17,13 +19,13 @@ import static javax0.geci.jamal.util.EntityStringer.isFingerPrintAField;
  */
 public class Type implements Macro {
     public String evaluate(Input in, Processor processor) throws BadSyntax {
-        final var fingerPrint = in.toString().trim();
+        final String fingerPrint = in.toString().trim();
         final Class<?> type;
         if (isFingerPrintAField(fingerPrint)) {
-            var field = EntityStringer.fingerprint2Field(fingerPrint);
+            Field field = EntityStringer.fingerprint2Field(fingerPrint);
             type = field.getType();
         } else {
-            var method = Reflection.globalMethodMap.get(fingerPrint);
+            Method method = Reflection.globalMethodMap.get(fingerPrint);
             type = method.getReturnType();
         }
         return GeciReflectionTools.getGenericTypeName(type);

@@ -1,5 +1,6 @@
 package javax0.geci.tools;
 
+import java.lang.ref.SoftReference;
 import javax0.geci.annotations.Geci;
 import javax0.geci.annotations.Generated;
 import javax0.geci.api.GeciException;
@@ -65,7 +66,7 @@ public class GeciAnnotationTools {
      * Gecis}.
      */
     private static Stream<Annotation> getDeclaredAnnotationUnwrapped(AnnotatedElement element) {
-        final var allAnnotations = element.getDeclaredAnnotations();
+        final Annotation[] allAnnotations = element.getDeclaredAnnotations();
         return Arrays.stream(allAnnotations)
                 .flatMap(GeciAnnotationTools::getSelfOrRepeated);
     }
@@ -99,7 +100,7 @@ public class GeciAnnotationTools {
      */
     private static Stream<Annotation> getSelfOrRepeated(Annotation annotation) {
         try {
-            final var value = annotation.annotationType().getMethod("value");
+            final Method value = annotation.annotationType().getMethod("value");
             value.setAccessible(true);
             if (Annotation[].class.isAssignableFrom(value.getReturnType())) {
                 return Stream.of((Annotation[]) value.invoke(annotation));
@@ -163,7 +164,7 @@ public class GeciAnnotationTools {
         if (annotationName(annotation).equals("Geci")) {
             return true;
         }
-        final var annotations = annotation.annotationType()
+        final Annotation[] annotations = annotation.annotationType()
                 .getDeclaredAnnotations();
         return Arrays.stream(annotations)
                 .filter(x -> !checked.contains(x))
@@ -195,9 +196,9 @@ public class GeciAnnotationTools {
     static String getValue(Annotation annotation) {
         try {
             final String rawValue = getRawValue(annotation);
-            final var annotationName = getAnnotationGeciName(annotation);
-            final var value = getValue(CaseTools.lcase(annotationName), rawValue.trim());
-            for (final var method : getAnnotationDeclaredMethods(annotation)) {
+            final String annotationName = getAnnotationGeciName(annotation);
+            final StringBuilder value = getValue(CaseTools.lcase(annotationName), rawValue.trim());
+            for (final Method method : getAnnotationDeclaredMethods(annotation)) {
                 if (method.getReturnType().equals(String.class) &&
                         !method.getName().equals("value") &&
                         !method.getName().equals("toString")) {
@@ -219,13 +220,15 @@ public class GeciAnnotationTools {
     }
 
     private static String getAnnotationGeciName(Annotation annotation) {
-        final var selfName = annotation.annotationType().getSimpleName();
-        final var annotations = annotation.annotationType()
+        final String selfName = annotation.annotationType().getSimpleName();
+        final Annotation[] annotations = annotation.annotationType()
                 .getDeclaredAnnotations();
-        final var renamedName = Arrays.stream(annotations)
-                .filter(GeciAnnotationTools::isAnnotationGeci).map(GeciAnnotationTools::getRawValue).findFirst();
-        return renamedName.isPresent() && renamedName.get().length() > 0 ?
-                renamedName.get() : selfName;
+        return Arrays.stream(annotations)
+                .filter(GeciAnnotationTools::isAnnotationGeci)
+            .map(GeciAnnotationTools::getRawValue)
+            .filter(s -> s.length() > 0)
+            .findFirst()
+            .orElse(selfName);
     }
 
     private static String geParam(Annotation annotation, Method method) {
@@ -239,7 +242,7 @@ public class GeciAnnotationTools {
 
     private static String getRawValue(Annotation annotation) {
         try {
-            final var valueMethod = getAnnotationValueMethod(annotation);
+            final Method valueMethod = getAnnotationValueMethod(annotation);
             valueMethod.setAccessible(true);
             return (String) valueMethod.invoke(annotation);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -349,7 +352,7 @@ public class GeciAnnotationTools {
      */
     private static StringBuilder getValue(String annotationName,
                                           String value) {
-        final var mnemonicEnd = value.indexOf(' ');
+        final int mnemonicEnd = value.indexOf(' ');
         final String mnemonic = mnemonicEnd == -1 ?
                 value
                 :
@@ -442,7 +445,7 @@ public class GeciAnnotationTools {
                                                String prefix,
                                                Pattern nextLine) {
         CompoundParams paramConditional = null;
-        for (var line : source.getLines()) {
+        for (String line : source.getLines()) {
             if (paramConditional != null) {
                 if (nextLine == null || nextLine.matcher(line).find()) {
                     return paramConditional;
@@ -452,7 +455,7 @@ public class GeciAnnotationTools {
             final Matcher match = getMatch(prefix, line);
             if (match.matches()) {
                 if (paramConditional == null) {
-                    var string = match.group(1);
+                    String string = match.group(1);
                     paramConditional = getParameters(generatorMnemonic, string);
                 }
             } else {
@@ -486,11 +489,11 @@ public class GeciAnnotationTools {
      */
     public static CompoundParams getSegmentParameters(Source source,
                                                       String mnemonic) {
-        for (var line : source.getLines()) {
-            final var trimmedLine = line.trim();
-            final var headerMatcher = SEGMENT_HEADER_PATTERN.matcher(trimmedLine);
+        for (String line : source.getLines()) {
+            final String trimmedLine = line.trim();
+            final Matcher headerMatcher = SEGMENT_HEADER_PATTERN.matcher(trimmedLine);
             if (headerMatcher.matches()) {
-                final var params = new CompoundParamsBuilder(headerMatcher.group(1)).exclude("desc").redefineId().build();
+                final CompoundParams params = new CompoundParamsBuilder(headerMatcher.group(1)).exclude("desc").redefineId().build();
                 if( mnemonic.equals(params.id())){
                     return params;
                 }
@@ -519,10 +522,10 @@ public class GeciAnnotationTools {
      * @return the matcher of regular expression matching
      */
     private static Matcher getMatch(String prefix, String line) {
-        final var trimmedLine = line.trim();
-        final var chopped = prefix != null && trimmedLine.startsWith(prefix) ?
+        final String trimmedLine = line.trim();
+        final String chopped = prefix != null && trimmedLine.startsWith(prefix) ?
                 trimmedLine.substring(prefix.length()) : trimmedLine;
-        final var matchLine = chopped.trim();
+        final String matchLine = chopped.trim();
         return ANNOTATION_PATTERN.matcher(matchLine);
     }
 
@@ -552,13 +555,13 @@ public class GeciAnnotationTools {
      * @param s the string parameter
      * @return the map composed from the string
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public static Map<String, String> getParameters(String s) {
-        var pars = new HashMap<String, String>();
-        var matcher = pattern.matcher(s);
+        Map<String, String> pars = new HashMap<String, String>();
+        Matcher matcher = pattern.matcher(s);
         while (matcher.find()) {
-            var key = matcher.group(1);
-            var value = matcher.group(2);
+            String key = matcher.group(1);
+            String value = matcher.group(2);
             pars.put(key, value);
         }
         return pars;

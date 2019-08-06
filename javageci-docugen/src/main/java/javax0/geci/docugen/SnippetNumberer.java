@@ -1,9 +1,12 @@
 package javax0.geci.docugen;
 
+import java.util.List;
 import javax0.geci.annotations.Geci;
 import javax0.geci.api.*;
 
 import java.util.ArrayList;
+import javax0.geci.tools.GeciCompatibilityTools;
+
 /** // snippet SnippetNumberer_doc
  *
  * The `number` snippet handling generator is implemented in the class `SnippetNumberer`.
@@ -72,28 +75,28 @@ public class SnippetNumberer extends AbstractSnippeter {
 
     @Override
     protected void modify(Source source, Segment segment, Snippet snippet, CompoundParams params) {
-        final var start = Long.parseLong(params.get("start", config.start));
-        final var step = Long.parseLong(params.get("step", config.step));
-        final var format = params.get("format", config.format);
-        final var startLine = calculateLineNumber(
+        final long start = Long.parseLong(params.get("start", config.start));
+        final long step = Long.parseLong(params.get("step", config.step));
+        final String format = params.get("format", config.format);
+        final long startLine = calculateLineNumber(
                 params.get("from", config.from),
                 snippet.lines().size()
         );
-        final var endLine = calculateLineNumber(
+        final long endLine = calculateLineNumber(
                 params.get("to", config.to.length() > 0 ? config.to : "" + snippet.lines().size())
                 , snippet.lines().size()
         );
 
-        final var modifiedLines = new ArrayList<String>();
+        final List<String> modifiedLines = new ArrayList<String>();
         int index = 0;
         long number = start;
-        for (final var line : snippet.lines()) {
-            final var formattedNumber = String.format(format, number);
+        for (final String line : snippet.lines()) {
+            final String formattedNumber = String.format(format, number);
             if (index >= startLine && index < endLine) {
                 modifiedLines.add(formattedNumber + line);
                 number += step;
             } else {
-                modifiedLines.add(" ".repeat(formattedNumber.length()) + line);
+                modifiedLines.add(GeciCompatibilityTools.repeat(" ", formattedNumber.length()) + line);
             }
             index++;
         }
@@ -102,7 +105,7 @@ public class SnippetNumberer extends AbstractSnippeter {
     }
 
     private long calculateLineNumber(String number, int max) {
-        final var z = Long.parseLong(number);
+        final long z = Long.parseLong(number);
         if (z < 0) {
             return max + z;
         } else {

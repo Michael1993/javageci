@@ -1,5 +1,6 @@
 package javax0.geci.jamal.reflection;
 
+import java.lang.reflect.Field;
 import javax0.geci.jamal.util.EntityStringer;
 import javax0.geci.tools.GeciReflectionTools;
 import javax0.jamal.api.Input;
@@ -21,8 +22,8 @@ public class Fields implements Macro {
 
     @Override
     public String evaluate(Input in, Processor processor) {
-        final var parser = FieldsMethodsParser.parse(in.toString(), "fields");
-        var declaredFields = GeciReflectionTools.getDeclaredFieldsSorted(parser.klass);
+        final FieldsMethodsParser parser = FieldsMethodsParser.parse(in.toString(), "fields");
+        Field[] declaredFields = GeciReflectionTools.getDeclaredFieldsSorted(parser.klass);
         return Arrays.stream(declaredFields).filter(parser.selector::match)
                 .map(EntityStringer::field2Fingerprint)
                 .collect(Collectors.joining(","));

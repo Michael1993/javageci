@@ -7,10 +7,10 @@ import java.util.function.Function;
 public class Lexer implements Function<List<String>, LexicalElement[]> {
     @Override
     public LexicalElement[] apply(List<String> strings) {
-        final var code = new StringBuilder(String.join("\n", strings));
-        final var lexes = new ArrayList<LexicalElement>();
+        final StringBuilder code = new StringBuilder(String.join("\n", strings));
+        final List<LexicalElement> lexes = new ArrayList<>();
         while (code.length() > 0) {
-            final var nextLex = next(code);
+            final LexicalElement nextLex = next(code);
             if (nextLex != null && nextLex != LexicalElement.IGNORED) {
                 lexes.add(nextLex);
             }
@@ -39,8 +39,8 @@ public class Lexer implements Function<List<String>, LexicalElement[]> {
     };
 
     private static LexicalElement next(StringBuilder sb) {
-        for (final var lexEater : lexEaters) {
-            final var nlextElement = lexEater.apply(sb);
+        for (final LexEater lexEater : lexEaters) {
+            final LexicalElement nlextElement = lexEater.apply(sb);
             if (nlextElement != null) {
                 return nlextElement;
             }

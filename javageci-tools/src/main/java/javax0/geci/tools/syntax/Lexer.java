@@ -105,11 +105,11 @@ public class Lexer {
      */
     public Lexeme get() {
         if (lookAhead != null) {
-            var ret = lookAhead;
+            Lexeme ret = lookAhead;
             lookAhead = next();
             return ret;
         } else {
-            var ret = next();
+            Lexeme ret = next();
             lookAhead = next();
             return ret;
         }
@@ -150,7 +150,7 @@ public class Lexer {
         }
 
         if (inputStartsWithAnIdentifier()) {
-            final var word = new StringBuilder();
+            final StringBuilder word = new StringBuilder();
             boolean inArgs = false;
             while (input1stCharIsStillPartOfMethodPrototype(inArgs)) {
                 final char c = input.charAt(0);
@@ -166,7 +166,7 @@ public class Lexer {
         }
 
         if (inputStartsWithRegex()) {
-            final var regex = new StringBuilder();
+            final StringBuilder regex = new StringBuilder();
             deleteOneCharacter();
             while (regexIsNotFinished()) {
                 if (inputStartsWithEscapedRegexDelimiter()) {
@@ -180,7 +180,7 @@ public class Lexer {
             }
             return new Lexeme(regex.toString(), Lexeme.Type.REGEX);
         }
-        var symbol = input.substring(0, 1);
+        String symbol = input.substring(0, 1);
         deleteOneCharacter();
         return new Lexeme(symbol, Lexeme.Type.SYMBOL);
     }

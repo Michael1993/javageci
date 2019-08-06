@@ -1,10 +1,13 @@
 package javax0.geci.fluent.syntax;
 
+import java.util.Arrays;
 import javax0.geci.api.GeciException;
 import javax0.geci.fluent.tree.FluentNodeCreator;
 import javax0.geci.fluent.tree.Node;
 import javax0.geci.fluent.tree.Terminal;
 import javax0.geci.fluent.tree.Tree;
+import javax0.geci.tools.GeciCompatibilityTools;
+import javax0.geci.tools.syntax.Lexeme;
 import javax0.geci.tools.syntax.Lexer;
 
 import java.util.ArrayList;
@@ -52,27 +55,14 @@ public class Syntax {
             return false;
         }
         if (nodes.get(0) instanceof Terminal) {
-            final var t0 = (Terminal) nodes.get(0);
-            final var t1 = (Terminal) nodes.get(1);
+            final Terminal t0 = (Terminal) nodes.get(0);
+            final Terminal t1 = (Terminal) nodes.get(1);
             return t0.getMethod().equals(t1.getMethod());
         } else {
-            final var t0 = (Tree) nodes.get(0);
-            final var t1 = (Tree) nodes.get(1);
+            final Tree t0 = (Tree) nodes.get(0);
+            final Tree t1 = (Tree) nodes.get(1);
             return t0.getList() == t1.getList();
         }
-    }
-
-    /**
-     * Creates a mutable list of the arguments. This is needed to fill in the list of the nodes in a Tree node.
-     * Optimization later changes the list.
-     *
-     * @param ts  the array of nodes to make list of
-     * @param <T> the type of the elements
-     * @return the modifiable list of nodes
-     */
-    @SafeVarargs
-    private static <T> List<T> listOf(T... ts) {
-        return new ArrayList<>(List.of(ts));
     }
 
     /**
@@ -87,7 +77,7 @@ public class Syntax {
      * @return the list of nodes that were created during the syntax analysis.
      */
     public List<Node> expression() {
-        final var nodes = subExpression();
+        final List<Node> nodes = subExpression();
         if (lexer.peek().type != EOF) {
             throw new GeciException("Extra characters at the end: '" + lexer.rest() + "'");
         }
@@ -95,7 +85,7 @@ public class Syntax {
     }
 
     public List<Node> subExpression() {
-        final var nodes = new ArrayList<>(alternate());
+        final List<Node> nodes = new ArrayList<>(alternate());
         while (lexer.peek().type == SPACE) {
             lexer.get();
             nodes.addAll(alternate());
@@ -124,13 +114,13 @@ public class Syntax {
      * @return the list of nodes that were created during the syntax analysis.
      */
     public List<Node> alternate() {
-        final var first = simple();
+        final List<Node> first = simple();
 
         if (lexer.peek().type != SYMBOL || !lexer.peek().string.equals("|")) {
             return first;
         }
 
-        final var nodes = new ArrayList<Node>();
+        final List<Node> nodes = new ArrayList<Node>();
         nodes.add(box(first));
         while (lexer.peek().type == SYMBOL && lexer.peek().string.equals("|")) {
             lexer.get();
@@ -139,7 +129,7 @@ public class Syntax {
         if (nodes.size() == 1) {
             return nodes;
         } else {
-            return listOf(nodeCreator.oneOfNode(nodes));
+            return Arrays.asList(nodeCreator.oneOfNode(nodes));
         }
     }
 
@@ -161,36 +151,36 @@ public class Syntax {
      * @return the list of nodes that were created during the syntax analysis.
      */
     public List<Node> simple() {
-        final var nodes = terminal();
-        final var lexeme = lexer.peek();
+        final List<Node> nodes = terminal();
+        final Lexeme lexeme = lexer.peek();
         if (lexeme.type == SYMBOL) {
             final Node node = box(nodes);
-            final var modifierCharacter = lexeme.string;
+            final String modifierCharacter = lexeme.string;
             switch (modifierCharacter) {
                 case "*":
                     lexer.get();
                     if (isOneOrMore(nodes)) {
-                        return listOf(box(nodes.get(0), Node.ZERO_OR_MORE));
+                        return Arrays.asList(box(nodes.get(0), Node.ZERO_OR_MORE));
                     }
-                    return listOf(box(node, Node.ZERO_OR_MORE));
+                    return Arrays.asList(box(node, Node.ZERO_OR_MORE));
                 case "?":
                     lexer.get();
                     if (isOneOrMore(nodes)) {
-                        return listOf(box(nodes.get(0), Node.ZERO_OR_MORE));
+                        return Arrays.asList(box(nodes.get(0), Node.ZERO_OR_MORE));
                     }
-                    return listOf(box(node, Node.OPTIONAL));
+                    return Arrays.asList(box(node, Node.OPTIONAL));
                 case "+":
                     lexer.get();
                     if (isOneOrMore(nodes)) {
                         return nodes;
                     }
                     if (node.getModifier() == Node.OPTIONAL) {
-                        return listOf(node.clone(Node.ZERO_OR_MORE));
+                        return Arrays.asList(node.clone(Node.ZERO_OR_MORE));
                     }
                     if (node.getModifier() == Node.ZERO_OR_MORE) {
                         return nodes;
                     }
-                    return listOf(node, box(node, Node.ZERO_OR_MORE));
+                    return Arrays.asList(node, box(node, Node.ZERO_OR_MORE));
             }
         }
         return nodes;
@@ -209,11 +199,11 @@ public class Syntax {
      */
     public List<Node> terminal() {
         if (lexer.peek().type == WORD) {
-            return listOf(nodeCreator.oneNode(lexer.get().string));
+            return Arrays.asList(nodeCreator.oneNode(lexer.get().string));
         }
         if (lexer.peek().type == SYMBOL && lexer.peek().string.equals("(")) {
             lexer.get();
-            final var nodes = subExpression();
+            final List<Node> nodes = subExpression();
             if (lexer.peek().type != SYMBOL || !lexer.peek().string.equals(")")) {
                 throw new GeciException("Fluent expression syntax error after ( ... ) missing closing parenthesis at '"
                         + lexer.rest() + "'");
@@ -256,7 +246,7 @@ public class Syntax {
      */
     private Node box(Node node, int modifier) {
         if (node.getModifier() == Node.ONE_OF || node.getModifier() == Node.ONE_TERMINAL_OF) {
-            return nodeCreator.oneNode(listOf(node)).clone(modifier);
+            return nodeCreator.oneNode(Arrays.asList(node)).clone(modifier);
         }
         if (node.getModifier() == Node.ZERO_OR_MORE) {
             return node;

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+import javax0.geci.tools.GeciCompatibilityTools;
 
 /**
  * // snippet SnippetAppender_doc
@@ -52,7 +52,7 @@ public class SnippetAppender extends AbstractSnippeter {
 
     private static class Config extends AbstractSnippeter.Config {
         // snippet SnippetAppender_Config_001
-        private List<String> snippets = List.of();
+        private List<String> snippets = GeciCompatibilityTools.createList();
         /*
 
         This configuration parameter defines the snippets that are appended to the base snippet.
@@ -73,17 +73,17 @@ public class SnippetAppender extends AbstractSnippeter {
     //snippet SnippetAppender_modify
     @Override
     protected void modify(Source source, Segment segment, Snippet snippet, CompoundParams params) {
-        final var segmentName = segment.sourceParams().id();
-        final var escape = params.get("escape", config.escape);
-        final var namePatterns = params.getValueList("snippets", config.snippets).stream()
+        final String segmentName = segment.sourceParams().id();
+        final String escape = params.get("escape", config.escape);
+        final List<Pattern> namePatterns = params.getValueList("snippets", config.snippets).stream()
             .map(s -> escape.length() > 0 ? s.replace(escape, "\\") : s)
             .map(Pattern::compile)
             .collect(Collectors.toList());
 
-        for (final var pattern : namePatterns) {
-            final var thereWereSomeSnippets = new AtomicBoolean(false);
+        for (final Pattern pattern : namePatterns) {
+            final AtomicBoolean thereWereSomeSnippets = new AtomicBoolean(false);
             snippets.names().stream()
-                .filter(pattern.asMatchPredicate())
+                .filter(GeciCompatibilityTools.asMatchPredicate(pattern))
                 .sorted(String::compareTo)
                 .map(name -> snippets.get(segmentName, name))
                 .forEach(snip -> {

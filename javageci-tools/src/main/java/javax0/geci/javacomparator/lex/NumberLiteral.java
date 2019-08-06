@@ -1,5 +1,6 @@
 package javax0.geci.javacomparator.lex;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -22,9 +23,9 @@ public class NumberLiteral implements LexEater {
 
     @Override
     public LexicalElement apply(StringBuilder sb) {
-        final var literals = new String[patterns.length];
+        final String[] literals = new String[patterns.length];
         for (int i = 0; i < patterns.length; i++) {
-            final var matcher = patterns[i].matcher(sb.toString());
+            final Matcher matcher = patterns[i].matcher(sb.toString());
             if (matcher.find()) {
                 literals[i] = matcher.group(1);
             } else {

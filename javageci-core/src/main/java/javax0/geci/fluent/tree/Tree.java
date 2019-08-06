@@ -26,13 +26,13 @@ public final class Tree extends Node {
 
     @Override
     public Node clone(int modifier) {
-        final var tree = new Tree(modifier, list);
+        final Tree tree = new Tree(modifier, list);
         tree.setName(getName());
         return tree;
     }
 
     public Node clone(int modifier,final List<Node> newList) {
-        final var tree = new Tree(modifier, newList);
+        final Tree tree = new Tree(modifier, newList);
         tree.setName(getName());
         return tree;
     }
@@ -72,7 +72,7 @@ public final class Tree extends Node {
             return -1;
         }
         for(int i = 0 ; i < getList().size(); i ++){
-            final var res = getList().get(i).compareTo(tree.getList().get(i));
+            final int res = getList().get(i).compareTo(tree.getList().get(i));
             if( res != 0 ){
                 return res;
             }

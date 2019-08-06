@@ -61,7 +61,7 @@ public class CompoundParams implements javax0.geci.api.CompoundParams {
         this.params = new HashMap[params.length];
         for (int i = 0; i < params.length; i++) {
             this.params[i] = new HashMap<>();
-            for (final var entry : params[i].entrySet()) {
+            for (final Map.Entry<String, ?> entry : params[i].entrySet()) {
                 this.params[i]
                         .put(entry.getKey(),
                                 valueToList(entry.getValue()));
@@ -84,9 +84,11 @@ public class CompoundParams implements javax0.geci.api.CompoundParams {
     private static List<String> valueToList(Object value) {
         final List<String> list;
         if (value instanceof List) {
-            return (List) value;
+            return (List<String>) value;
         } else if (value instanceof String) {
-            return new ArrayList(List.of((String) value));
+            list = new ArrayList<>();
+            list.add((String) value);
+            return list;
         } else {
             throw new IllegalArgumentException(value.getClass()
                     + " cannot be used in "
@@ -173,12 +175,12 @@ public class CompoundParams implements javax0.geci.api.CompoundParams {
      */
     private void checkAllowedKeys() {
         final StringBuilder errorMessage = new StringBuilder();
-        for (final var key : keySet()) {
+        for (final String key : keySet()) {
             if (!allowedKeys.contains(key)) {
                 String closestKey = null;
                 int closestDistance = Integer.MAX_VALUE;
-                for (final var s : allowedKeys) {
-                    final var d = Levenshtein.distance(key, s);
+                for (final String s : allowedKeys) {
+                    final int d = Levenshtein.distance(key, s);
                     if( d == closestDistance ){
                         closestKey = null;
                     }
@@ -221,13 +223,14 @@ public class CompoundParams implements javax0.geci.api.CompoundParams {
 
     @Override
     public String get(String key) {
-        return Objects.requireNonNullElse(get0(key), "");
+        final String s = get0(key);
+        return s == null ? "" : s;
     }
 
 
     @Override
     public String id(String mnemonic) {
-        var id = get("id");
+        String id = get("id");
         return id.length() == 0 ? mnemonic : id;
     }
 
@@ -299,7 +302,7 @@ public class CompoundParams implements javax0.geci.api.CompoundParams {
 
     @Override
     public List<String> getValueList(String key, List<String> defaults) {
-        final var list = getValueList(key);
+        final List<String> list = getValueList(key);
         if (list != null) {
             return list;
         }
@@ -314,7 +317,7 @@ public class CompoundParams implements javax0.geci.api.CompoundParams {
                     .filter(p -> p.containsKey(key))
                     .map(p -> p.get(key))
                     .findFirst()
-                    .orElse("id".equals(key) ? List.of(id) : null);
+                    .orElse("id".equals(key) ? Collections.singletonList(id) : null);
         }
         if (cparams != null) {
             return Arrays.stream(cparams)
@@ -322,10 +325,10 @@ public class CompoundParams implements javax0.geci.api.CompoundParams {
                     .map(p -> p.getValueList(key))
                     .filter(Objects::nonNull)
                     .findFirst()
-                    .orElse("id".equals(key) ? List.of(id) : null);
+                    .orElse("id".equals(key) ? Collections.singletonList(id) : null);
         }
         if ("id".equals(key)) {
-            return List.of(id);
+            return Collections.singletonList(id);
         }
         return null;
     }
@@ -333,13 +336,13 @@ public class CompoundParams implements javax0.geci.api.CompoundParams {
 
     @Override
     public boolean is(String key) {
-        var s = get(key);
+        String s = get(key);
         return toBoolean(s);
     }
 
     @Override
     public boolean is(String key, boolean defaultValue) {
-        var s = get(key);
+        String s = get(key);
         if (s.isEmpty()) {
             return defaultValue;
         } else {
@@ -349,7 +352,7 @@ public class CompoundParams implements javax0.geci.api.CompoundParams {
 
     @Override
     public boolean is(String key, String defaultValue) {
-        var s = get(key);
+        String s = get(key);
         if (s.isEmpty()) {
             s = defaultValue;
         }

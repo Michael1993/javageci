@@ -12,7 +12,7 @@ public class TestChainedAccessor {
 
     @Test
     public void testAccessor() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(geci.source(maven()
                         .module("javageci-examples").mainSource())
                         .register(ChainedAccessor.builder().build()).generate(),

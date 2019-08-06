@@ -32,7 +32,7 @@ public class InterfaceNameFactory {
         if (node.hasName()) {
             lastInterface = node.getName();
         } else {
-            final var sb = new StringBuilder();
+            final StringBuilder sb = new StringBuilder();
             int z = counter;
             counter += 119;
             while( z > 0 ){

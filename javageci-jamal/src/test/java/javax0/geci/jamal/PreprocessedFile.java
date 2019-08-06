@@ -64,22 +64,22 @@ public class PreprocessedFile {
 
         /*!jamal
         //<editor-fold desc="the generated code">
-        var j = {{z}};
+        int j = {{z}};
         //</editor-fold>
          */
         //<editor-fold desc="the generated code">
-        var j = 13;
+        int j = 13;
         //</editor-fold>
 
         //__END__
 
         /*!jamal
         //<editor-fold desc="the generated code">
-        {{@import variables.jam}}var k = {{s}};
+        {{@import variables.jam}}int k = {{s}};
         //</editor-fold>
          */
         //<editor-fold desc="the generated code">
-        var k = 666;
+        int k = 666;
         //</editor-fold>
 
         //__END__

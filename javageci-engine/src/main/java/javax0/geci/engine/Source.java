@@ -1,6 +1,7 @@
 package javax0.geci.engine;
 
 
+import java.util.regex.Matcher;
 import javax0.geci.api.*;
 import javax0.geci.tools.GeciReflectionTools;
 import javax0.geci.util.FileCollector;
@@ -85,11 +86,11 @@ public class Source implements javax0.geci.api.Source {
     @Override
     public Source newSource(Source.Set sourceSet, String fileName) {
         assertTouching();
-        var directory = collector.getDirectory(sourceSet);
+        String directory = collector.getDirectory(sourceSet);
         if (directory == null) {
             throw new GeciException("SourceSet '" + sourceSet + "' does not exist");
         }
-        var source = new Source(collector, directory, inDir(directory, fileName));
+        Source source = new Source(collector, directory, inDir(directory, fileName));
         collector.addNewSource(source);
         return source;
     }
@@ -97,12 +98,12 @@ public class Source implements javax0.geci.api.Source {
     @Override
     public Source newSource(String fileName) {
         assertTouching();
-        for (final var source : collector.getNewSources()) {
+        for (final Source source : collector.getNewSources()) {
             if (this.absoluteFile.equals(source.absoluteFile)) {
                 return source;
             }
         }
-        var source = new Source(collector, dir, inDir(dir, fileName));
+        Source source = new Source(collector, dir, inDir(dir, fileName));
         collector.addNewSource(source);
         return source;
     }
@@ -177,7 +178,7 @@ public class Source implements javax0.geci.api.Source {
 
     @Override
     public Segment safeOpen(String id) throws IOException {
-        final var segment = open(id);
+        final Segment segment = open(id);
         if (segment == null) {
             throw new GeciException(getAbsoluteFile() + " does not have segment named '" + id + "'");
         }
@@ -216,7 +217,7 @@ public class Source implements javax0.geci.api.Source {
         }
         if (!segments.containsKey(id)) {
             boolean defaultSegment = false;
-            var segDesc = findSegment(id);
+            SegmentDescriptor segDesc = findSegment(id);
             if (segDesc == null) {
                 segDesc = findDefaultSegment();
                 if (segDesc == null) {
@@ -224,7 +225,7 @@ public class Source implements javax0.geci.api.Source {
                 }
                 defaultSegment = true;
             }
-            var segment = new Segment(segDesc.tab, segDesc.attr, segDesc.originals);
+            Segment segment = new Segment(segDesc.tab, segDesc.attr, segDesc.originals);
             if (defaultSegment) {
                 segment.setPreface(mnemonize(id, splitHelper.getSegmentPreface()));
                 segment.setPostface(mnemonize(id, splitHelper.getSegmentPostface()));
@@ -277,11 +278,11 @@ public class Source implements javax0.geci.api.Source {
                 "This is an internal error: source was not read into memory but segments were generated");
         }
         if (globalSegment == null) {
-            for (var entry : segments.entrySet()) {
+            for (Map.Entry<String, Segment> entry : segments.entrySet()) {
                 touched = true;
-                var id = entry.getKey();
-                var segment = entry.getValue();
-                var segmentLocation = findSegment(id);
+                String id = entry.getKey();
+                Segment segment = entry.getValue();
+                SegmentDescriptor segmentLocation = findSegment(id);
                 if (segmentLocation == null) {
                     segmentLocation = findDefaultSegment();
                     if (segmentLocation == null) {
@@ -352,9 +353,9 @@ public class Source implements javax0.geci.api.Source {
     private SegmentDescriptor findDefaultSegment() {
         if (allowDefaultSegment) {
             for (int i = lines.size() - 1; 0 < i; i--) {
-                final var matcher = splitHelper.match(lines, i);
+                final SegmentSplitHelper.Matcher matcher = splitHelper.match(lines, i);
                 if (matcher.isDefaultSegmentEnd()) {
-                    var seg = new SegmentDescriptor();
+                    SegmentDescriptor seg = new SegmentDescriptor();
                     seg.attr = null;
                     seg.startLine = i + matcher.headerLength();
                     seg.endLine = i;
@@ -375,12 +376,12 @@ public class Source implements javax0.geci.api.Source {
      */
     private SegmentDescriptor findSegment(String id) {
         for (int i = 0; i < lines.size(); i++) {
-            var line = lines.get(i);
-            final var matcher = splitHelper.match(lines, i);
+            String line = lines.get(i);
+            final SegmentSplitHelper.Matcher matcher = splitHelper.match(lines, i);
             if (matcher.isSegmentStart()) {
-                var attr = matcher.attributes();
+                CompoundParams attr = matcher.attributes();
                 if (id.equals(attr.id())) {
-                    var seg = new SegmentDescriptor();
+                    SegmentDescriptor seg = new SegmentDescriptor();
                     seg.id = id;
                     seg.originals = new ArrayList<>();
                     seg.attr = attr;
@@ -388,7 +389,7 @@ public class Source implements javax0.geci.api.Source {
                     seg.startLine = i + matcher.headerLength();
                     for (int j = seg.startLine; j < lines.size(); j++) {
                         line = lines.get(j);
-                        final var endMatcher = splitHelper.match(line);
+                        final SegmentSplitHelper.Matcher endMatcher = splitHelper.match(line);
                         if (endMatcher.isSegmentEnd()) {
                             seg.endLine = j;
                             return seg;
@@ -409,11 +410,11 @@ public class Source implements javax0.geci.api.Source {
             return;
         }
         for (int i = 0; i < lines.size(); i++) {
-            var line = lines.get(i);
-            final var matcher = splitHelper.match(lines, i);
+            String line = lines.get(i);
+            final SegmentSplitHelper.Matcher matcher = splitHelper.match(lines, i);
             if (matcher.isSegmentStart()) {
-                var attr = matcher.attributes();
-                var seg = new SegmentDescriptor();
+                CompoundParams attr = matcher.attributes();
+                SegmentDescriptor seg = new SegmentDescriptor();
                 seg.id = attr.id();
                 seg.originals = new ArrayList<>();
                 seg.attr = attr;
@@ -421,7 +422,7 @@ public class Source implements javax0.geci.api.Source {
                 seg.startLine = i + matcher.headerLength();
                 for (i = seg.startLine; i < lines.size(); i++) {
                     line = lines.get(i);
-                    final var endMatcher = splitHelper.match(lines, i);
+                    final SegmentSplitHelper.Matcher endMatcher = splitHelper.match(lines, i);
                     if (endMatcher.isSegmentEnd()) {
                         seg.endLine = i;
                         if (!segments.containsKey(seg.id)) {

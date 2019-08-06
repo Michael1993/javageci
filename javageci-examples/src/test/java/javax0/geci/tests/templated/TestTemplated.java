@@ -13,7 +13,7 @@ public class TestTemplated {
 
     @Test
     void testTemplated() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(
                 geci.source(maven().module("javageci-examples").mainSource())
                         .register(

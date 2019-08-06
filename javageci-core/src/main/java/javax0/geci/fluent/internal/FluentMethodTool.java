@@ -20,7 +20,7 @@ public class FluentMethodTool extends MethodTool {
 
     @Override
     public String getArgCall(Type t) {
-        final var normType = GeciReflectionTools.getGenericTypeName(t);
+        final String normType = GeciReflectionTools.getGenericTypeName(t);
         final String arg;
         if (normType.equals(klassName)) {
             arg = "((Wrapper)arg" + argCounter.addAndGet(1) + ").that";
@@ -32,7 +32,7 @@ public class FluentMethodTool extends MethodTool {
 
     @Override
     public String getArg(Type t) {
-        final var normType = GeciReflectionTools.getGenericTypeName(t);
+        final String normType = GeciReflectionTools.getGenericTypeName(t);
         final String actualType;
         if (normType.equals(klassName)) {
             actualType = "WrapperInterface";

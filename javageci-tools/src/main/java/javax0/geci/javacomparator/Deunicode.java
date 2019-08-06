@@ -25,9 +25,9 @@ public class Deunicode implements Function<String, String> {
      */
     @Override
     public String apply(String s) {
-        final var output = new StringBuilder();
+        final StringBuilder output = new StringBuilder();
         for (int index = 0; index < s.length(); index++) {
-            final var currentChar = s.charAt(index);
+            final char currentChar = s.charAt(index);
             if (currentChar == '\\' && index + 1 < s.length() && s.charAt(index + 1) == 'u') {
                 index++;
                 while (index < s.length() && s.charAt(index) == 'u') {
@@ -35,7 +35,7 @@ public class Deunicode implements Function<String, String> {
                 }
                 if (index + 3 < s.length()) {
                     try {
-                        final var hex = Integer.parseInt(s.substring(index, index + 4), 16);
+                        final int hex = Integer.parseInt(s.substring(index, index + 4), 16);
                         index += 3;
                         output.append((char) hex);
                     } catch (NumberFormatException e) {

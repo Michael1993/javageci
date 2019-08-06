@@ -11,8 +11,8 @@ import javax0.jamal.api.Processor;
 public class Name implements Macro {
     @Override
     public String evaluate(Input in, Processor processor) {
-        final var fingerPrint = in.toString().trim();
-        final var parts = fingerPrint.split("\\|", -1);
+        final String fingerPrint = in.toString().trim();
+        final String[] parts = fingerPrint.split("\\|", -1);
         if (parts.length < 2) {
             throw new IllegalArgumentException("Entity identified with " + fingerPrint + " does not have name.");
         }

@@ -16,13 +16,13 @@ public class Reflection {
     public static class Modifiers implements Macro {
         @Override
         public String evaluate(Input in, Processor processor) {
-            final var entityName = in.toString().trim();
+            final String entityName = in.toString().trim();
             final int modifiers;
             if (globalFieldsMap.containsKey(entityName)) {
-                var field = globalFieldsMap.get(entityName);
+                Field field = globalFieldsMap.get(entityName);
                 modifiers = field.getModifiers();
             } else if (globalMethodMap.containsKey(entityName)) {
-                var method = globalMethodMap.get(entityName);
+                Method method = globalMethodMap.get(entityName);
                 modifiers = method.getModifiers();
             } else {
                 throw new IllegalArgumentException("Entiry identified with " + entityName + " was not found.");

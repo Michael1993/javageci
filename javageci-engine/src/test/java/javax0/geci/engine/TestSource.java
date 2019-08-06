@@ -1,5 +1,6 @@
 package javax0.geci.engine;
 
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.util.FileCollector;
 import org.junit.jupiter.api.Test;
 
@@ -14,10 +15,10 @@ public class TestSource {
 
     @Test
     public void testSource() throws IOException {
-        final var collector = new FileCollector(Map.of());
-        var sut = new Source(collector, "ddd", Paths.get("xyz.java"));
+        final FileCollector collector = new FileCollector(GeciCompatibilityTools.createMap());
+        Source sut = new Source(collector, "ddd", Paths.get("xyz.java"));
         sut.inMemory = true;
-        sut.lines.addAll(List.of(
+        sut.lines.addAll(GeciCompatibilityTools.createList(
                 "This is something there",
                 "    // <editor-fold id=\"myId\">",
                 "this is to be replaced",
@@ -28,7 +29,7 @@ public class TestSource {
                 "this is also unharmed",
                 "//</editor-fold>"
         ));
-        var seg = sut.open("myId");
+        Segment seg = sut.open("myId");
         seg.write("this is the replacement first line");
         seg.write("this is the replacement 2 line");
         seg.write("this is the replacement 3 line");

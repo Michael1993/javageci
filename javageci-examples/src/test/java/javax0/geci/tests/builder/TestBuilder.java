@@ -11,7 +11,7 @@ public class TestBuilder {
 
     @Test
     void buildGenerators() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(
                 geci.source(
                         "./javageci-core/src/main/java/",
@@ -24,7 +24,7 @@ public class TestBuilder {
 
     @Test
     void testBuilder() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(
                 geci.source(
                         maven().module("javageci-examples")

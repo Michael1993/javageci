@@ -12,7 +12,7 @@ public class XmlBuilder {
     private int tab = 0;
 
     public XmlBuilder copy() {
-        var next = new XmlBuilder();
+        XmlBuilder next = new XmlBuilder();
         next.xml = xml;
         next.tagIsOpen = tagIsOpen;
         next.openedTag = openedTag;
@@ -86,7 +86,7 @@ public class XmlBuilder {
             this.that = new javax0.geci.tutorials.xmlbuilder.XmlBuilder();
         }
         public Wrapper tag(String arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.tag(arg1);
             return next;
         }
@@ -94,12 +94,12 @@ public class XmlBuilder {
             return that.toString();
         }
         public Wrapper text(String arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.text(arg1);
             return next;
         }
         public Wrapper attribute(String arg1, String arg2){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.attribute(arg1,arg2);
             return next;
         }

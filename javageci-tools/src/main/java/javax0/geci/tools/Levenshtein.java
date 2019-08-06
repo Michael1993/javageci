@@ -17,7 +17,7 @@ class Levenshtein {
     private static final int MAX_COST = 5;
 
     static int distance(String x, String y) {
-        final var lev = new Levenshtein();
+        final Levenshtein lev = new Levenshtein();
         lev.maxCost = MAX_COST;
         return lev.calculate(x, y, 0);
     }
@@ -39,7 +39,7 @@ class Levenshtein {
         int substitution = calculate(x.substring(1), y.substring(1), cost + thisCost)
                 + thisCost;
         int insertion = calculate(x, y.substring(1), cost + 1) + 1;
-        final var min = substitution > insertion ? insertion : substitution;
+        final int min = substitution > insertion ? insertion : substitution;
         int deletion = calculate(x.substring(1), y, cost + 1) + 1;
         return min < deletion ? min : deletion;
     }

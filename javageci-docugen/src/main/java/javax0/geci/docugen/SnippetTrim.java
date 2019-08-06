@@ -1,5 +1,6 @@
 package javax0.geci.docugen;
 
+import java.util.List;
 import javax0.geci.annotations.Geci;
 import javax0.geci.api.CompoundParams;
 import javax0.geci.api.GeciException;
@@ -7,6 +8,7 @@ import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 
 import java.util.ArrayList;
+import javax0.geci.tools.GeciCompatibilityTools;
 
 @Geci("configBuilder localConfigMethod='' configurableMnemonic='trim'")
 public class SnippetTrim extends AbstractSnippeter {
@@ -36,22 +38,22 @@ public class SnippetTrim extends AbstractSnippeter {
         } catch (NumberFormatException nfe) {
             throw new GeciException("Can not interpret 'to' parameter " + params.get("to", config.to) + " as a number in snippet " + snippet.name() + " in source " + source.getAbsoluteFile());
         }
-        final var untab = calculateTabbing(snippet);
+        final int untab = calculateTabbing(snippet);
 
-        final var modifiedLines = new ArrayList<String>();
-        for (final var line : snippet.lines()) {
-            modifiedLines.add(" ".repeat(to) + (line.length() >= untab ? line.substring(untab) : ""));
+        final List<String> modifiedLines = new ArrayList<String>();
+        for (final String line : snippet.lines()) {
+            modifiedLines.add(GeciCompatibilityTools.repeat(" ", to) + (line.length() >= untab ? line.substring(untab) : ""));
         }
         snippet.lines().clear();
         snippet.lines().addAll(modifiedLines);
     }
 
     private int calculateTabbing(Snippet snippet) {
-        var min = Integer.MAX_VALUE;
-        for (final var line : snippet.lines()) {
-            final var stripped = line.stripLeading().length();
+        int min = Integer.MAX_VALUE;
+        for (final String line : snippet.lines()) {
+            final int stripped = GeciCompatibilityTools.stripLeading(line).length();
             if (stripped > 0) {
-                final var spaces = line.length() - stripped;
+                final int spaces = line.length() - stripped;
                 if (spaces < min) {
                     min = spaces;
                 }

@@ -31,7 +31,7 @@ public class TestSimpleGrammar {
 
     @Test
     void createGrammar() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(geci
                         .source(
                                 maven().module("javageci-examples").mainSource())
@@ -47,7 +47,7 @@ public class TestSimpleGrammar {
     @Test
     @DisplayName("Test generated simple grammar")
     void testGeneratedSimpleGrammar() {
-        var sut = defineSimpleGrammar();
+        FluentBuilder sut = defineSimpleGrammar();
         sut.optimize();
         Assertions.assertEquals(
                 "(parameterisedWord|singleWord|(word1 optionalWord?)|" +
@@ -60,7 +60,7 @@ public class TestSimpleGrammar {
     @Test
     @DisplayName("Test generated simple grammar")
     void testGeneratedSimpleGrammarFromSyntax() {
-        var sut = defineSimpleGrammar_syntax();
+        FluentBuilder sut = defineSimpleGrammar_syntax();
         sut.optimize();
         Assertions.assertEquals(
                 "(parameterisedWord|" +

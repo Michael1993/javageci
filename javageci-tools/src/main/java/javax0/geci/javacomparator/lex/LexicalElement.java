@@ -27,7 +27,7 @@ public class LexicalElement {
         COMMENT, STRING, CHARACTER, IDENTIFIER, INTEGER, FLOAT, SYMBOL;
 
         public boolean is(Type... types) {
-            for (final var t : types) {
+            for (final Type t : types) {
                 if (t == this) return true;
             }
             return false;

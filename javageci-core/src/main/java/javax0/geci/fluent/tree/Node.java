@@ -1,6 +1,8 @@
 package javax0.geci.fluent.tree;
 
 import java.util.Map;
+import javax0.geci.tools.GeciCompatibilityTools;
+import javax0.geci.tools.GeciReflectionTools;
 
 /**
  * A node that describes one element in the syntax tree that describes a fluent API. A node has a modifier, like
@@ -19,7 +21,7 @@ public abstract class Node implements Comparable<Node> {
     public static final int ONE_OF = 0x00000008;
     public static final int ONE_TERMINAL_OF = 0x00000010;
     private static final Map<Integer, String> stringMap =
-            Map.of(ONCE, "",
+            GeciCompatibilityTools.createMap(ONCE, "",
                     OPTIONAL, "?",
                     ZERO_OR_MORE, "*",
                     ONE_OF, "{OR}",

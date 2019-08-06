@@ -167,7 +167,7 @@ public class SnippetRegex extends AbstractSnippeter {
                     + source.getAbsoluteFile()
                     + " is too short (3, like '///' is the minimum).");
         }
-        final var startChar = replaceString.substring(0, 1);
+        final String startChar = replaceString.substring(0, 1);
         if (!replaceString.endsWith(startChar)) {
             throw new GeciException("Replace parameter in snippet "
                     + snippet.name()
@@ -175,7 +175,7 @@ public class SnippetRegex extends AbstractSnippeter {
                     + source.getAbsoluteFile()
                     + " does not end with the character it starts with.");
         }
-        final var mid = replaceString.indexOf(startChar, 1);
+        final int mid = replaceString.indexOf(startChar, 1);
         if (mid == replaceString.length() - 1) {
             throw new GeciException("Replace parameter in snippet "
                     + snippet.name()
@@ -183,14 +183,14 @@ public class SnippetRegex extends AbstractSnippeter {
                     + source.getAbsoluteFile()
                     + " does not have two parts only one.");
         }
-        final var part = new String[2];
+        final String[] part = new String[2];
         part[0] = descape(replaceString.substring(1, mid), escape);
         part[1] = replaceString.substring(mid + 1, replaceString.length() - 1);
         return part;
     }
 
     private static boolean lineIsKilled(List<Pattern> patterns, String line, Source source, Segment segment, Snippet snippet) {
-        for (final var pattern : patterns) {
+        for (final Pattern pattern : patterns) {
             if (pattern.matcher(line).find()) {
                 return true;
             }
@@ -212,26 +212,26 @@ public class SnippetRegex extends AbstractSnippeter {
 
     @Override
     protected void modify(Source source, Segment segment, Snippet snippet, CompoundParams params) {
-        final var search = new ArrayList<String>();
-        final var replace = new ArrayList<String>();
-        final var escape = params.get("escape");
+        final List<String> search = new ArrayList<String>();
+        final List<String> replace = new ArrayList<String>();
+        final String escape = params.get("escape");
         if (params.getValueList("replace") != null) {
-            for (final var rep : params.getValueList("replace")) {
-                final var part = getParts(rep, escape, snippet, source);
+            for (final String rep : params.getValueList("replace")) {
+                final String[] part = getParts(rep, escape, snippet, source);
                 search.add(part[0]);
                 replace.add(part[1]);
             }
         }
 
-        final var kill = new ArrayList<Pattern>();
+        final List<Pattern> kill = new ArrayList<Pattern>();
         if (params.getValueList("kill") != null) {
-            for (final var regex : params.getValueList("kill")) {
+            for (final String regex : params.getValueList("kill")) {
                 kill.add(getKillPattern(descape(regex, escape), snippet, source));
             }
         }
-        final var modifiedLines = new ArrayList<String>();
-        for (final var line : snippet.lines()) {
-            var s = line;
+        final List<String> modifiedLines = new ArrayList<String>();
+        for (final String line : snippet.lines()) {
+            String s = line;
             if (params.is("killFirst") && lineIsKilled(kill, s, source, segment, snippet)) {
                 continue;
             }

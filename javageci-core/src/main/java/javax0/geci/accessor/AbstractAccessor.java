@@ -5,6 +5,7 @@ import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractFilteredFieldsGenerator;
 import javax0.geci.tools.CompoundParams;
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.GeciReflectionTools;
 
 import java.lang.reflect.Field;
@@ -42,7 +43,7 @@ public class AbstractAccessor extends AbstractFilteredFieldsGenerator {
     }
 
     private static final Set<String> accessModifiers =
-            Set.of("public", "private", "protected", "package");
+            GeciCompatibilityTools.createSet("public", "private", "protected", "package");
 
     protected void writeGetter(Field field, String name, String getterName,
                                String type, String access, Segment segment) {
@@ -86,13 +87,13 @@ public class AbstractAccessor extends AbstractFilteredFieldsGenerator {
                         CompoundParams params,
                         Field field,
                         Segment segment) {
-        final var isFinal = Modifier.isFinal(field.getModifiers());
-        final var name = field.getName();
-        final var fieldType = GeciReflectionTools.typeAsString(field);
-        final var access = check(params.get("access", "public"));
-        final var setter = params.get("setter", () -> config.setterNameGenerator.apply(name));
-        final var getter = params.get("getter", () -> config.getterNameGenerator.apply(name));
-        final var only = params.get("only");
+        final boolean isFinal = Modifier.isFinal(field.getModifiers());
+        final String name = field.getName();
+        final String fieldType = GeciReflectionTools.typeAsString(field);
+        final String access = check(params.get("access", "public"));
+        final String setter = params.get("setter", () -> config.setterNameGenerator.apply(name));
+        final String getter = params.get("getter", () -> config.getterNameGenerator.apply(name));
+        final String only = params.get("only");
         if (!isFinal && !"getter".equals(only)) {
             writeSetter(field, name, setter, fieldType, access, segment);
         }
@@ -107,7 +108,7 @@ public class AbstractAccessor extends AbstractFilteredFieldsGenerator {
         return new AbstractAccessor().new Builder();
     }
 
-    private static final java.util.Set<String> implementedKeys = java.util.Set.of(
+    private static final java.util.Set<String> implementedKeys = GeciCompatibilityTools.createSet(
         "access",
         "filter",
         "getter",
@@ -177,7 +178,7 @@ public class AbstractAccessor extends AbstractFilteredFieldsGenerator {
         }
     }
     private Config localConfig(CompoundParams params){
-        final var local = new Config();
+        final Config local = new Config();
         local.access = params.get("access",config.access);
         local.filter = params.get("filter",config.filter);
         local.getter = params.get("getter",config.getter);

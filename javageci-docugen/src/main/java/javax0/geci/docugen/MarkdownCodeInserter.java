@@ -1,5 +1,6 @@
 package javax0.geci.docugen;
 
+import java.util.List;
 import javax0.geci.annotations.Geci;
 import javax0.geci.api.CompoundParams;
 import javax0.geci.api.Segment;
@@ -13,7 +14,7 @@ public class MarkdownCodeInserter extends AbstractSnippeter implements NonConfig
 
     @Override
     public void modify(Source source, Segment segment, Snippet snippet, CompoundParams params) {
-        final var originalLines = segment.originalLines();
+        final List<String> originalLines = segment.originalLines();
         if (originalLines.size() > 0 && originalLines.get(0).startsWith("```")) {
             segment.write(originalLines.get(0));
         }

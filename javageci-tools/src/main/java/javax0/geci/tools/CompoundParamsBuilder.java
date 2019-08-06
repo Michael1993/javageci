@@ -1,5 +1,7 @@
 package javax0.geci.tools;
 
+import java.util.Arrays;
+import java.util.Collections;
 import javax0.geci.api.GeciException;
 import javax0.geci.javacomparator.lex.Lexer;
 import javax0.geci.javacomparator.lex.LexicalElement;
@@ -45,16 +47,16 @@ public class CompoundParamsBuilder {
     }
 
     public CompoundParamsBuilder exclude(String... keys) {
-        excludedKeys.addAll(List.of(keys));
+        excludedKeys.addAll(Arrays.asList(keys));
         return this;
     }
 
     public CompoundParams build() {
         final Map<String, List<String>> params = new HashMap<>();
-        final var lexer = new Lexer();
+        final Lexer lexer = new Lexer();
         final LexicalElement[] elements;
         try {
-            elements = lexer.apply(List.of(line));
+            elements = lexer.apply(Collections.singletonList(line));
         } catch (IllegalArgumentException iae) {
             throw new GeciException("Cannot parse the line for parameters: " + line, iae);
         }
@@ -73,7 +75,7 @@ public class CompoundParamsBuilder {
             if (elements[i].type != IDENTIFIER) {
                 throwMalformed(line);
             }
-            final var key = elements[i].lexeme;
+            final String key = elements[i].lexeme;
             i++;
             if (i >= elements.length || !elements[i].type.is(SYMBOL) || !elements[i].lexeme.equals("=")) {
                 throwMalformed(line);
@@ -82,7 +84,7 @@ public class CompoundParamsBuilder {
             if (i >= elements.length || !elements[i].type.is(STRING, CHARACTER, FLOAT, INTEGER, IDENTIFIER)) {
                 throwMalformed(line);
             }
-            final var value = elements[i].lexeme;
+            final String value = elements[i].lexeme;
             if (redefine && "id".equals(key)) {
                 name = value;
             } else if ("id".equals(key)) {

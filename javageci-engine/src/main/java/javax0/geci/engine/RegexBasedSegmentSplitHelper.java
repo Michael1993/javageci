@@ -1,5 +1,6 @@
 package javax0.geci.engine;
 
+import java.util.regex.Matcher;
 import javax0.geci.api.CompoundParams;
 import javax0.geci.api.SegmentSplitHelper;
 import javax0.geci.tools.CompoundParamsBuilder;
@@ -80,12 +81,12 @@ public class RegexBasedSegmentSplitHelper implements SegmentSplitHelper {
 
     @Override
     public SegmentSplitHelper.Matcher match(String line) {
-        final var startMatcher = startPattern.matcher(line);
-        final var segmentStart = startMatcher.matches();
+        final java.util.regex.Matcher startMatcher = startPattern.matcher(line);
+        final boolean segmentStart = startMatcher.matches();
         final CompoundParams attrs;
         int tabs = 0;
         if (segmentStart) {
-            final var paramsDef = getGroup(2, startMatcher);
+            final String paramsDef = getGroup(2, startMatcher);
             if (paramsDef == null) {
                 throw new IllegalArgumentException("Start pattern in "
                     + this.getClass()
@@ -94,7 +95,7 @@ public class RegexBasedSegmentSplitHelper implements SegmentSplitHelper {
                     + "\ndoes not give a second matching group. This is probably a coding error in that class.");
             }
             attrs = new CompoundParamsBuilder(paramsDef).redefineId().build();
-            final var startSpaces = getGroup(1, startMatcher);
+            final String startSpaces = getGroup(1, startMatcher);
             if (startSpaces == null) {
                 throw new IllegalArgumentException("Start pattern in "
                     + this.getClass()
@@ -107,9 +108,9 @@ public class RegexBasedSegmentSplitHelper implements SegmentSplitHelper {
         } else {
             attrs = null;
         }
-        final var segmentEnd = endPattern.matcher(line).matches();
-        final var defaultMatcher = defaultPattern.matcher(line);
-        final var segmentDefault = defaultMatcher.matches();
+        final boolean segmentEnd = endPattern.matcher(line).matches();
+        final java.util.regex.Matcher defaultMatcher = defaultPattern.matcher(line);
+        final boolean segmentDefault = defaultMatcher.matches();
         if (segmentDefault) {
             tabs = defaultMatcher.group(1).length() + defaultOffset;
         }

@@ -1,6 +1,8 @@
 package javax0.geci.jamal;
 
+import java.util.List;
 import javax0.geci.api.GeciException;
+import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractGeneratorEx;
 import javax0.jamal.api.BadSyntax;
@@ -41,13 +43,13 @@ public class JamalGenerator extends AbstractGeneratorEx {
         } catch (IllegalArgumentException ex) {
             throw new GeciException("Jamal processor opening threw exception", ex);
         }
-        var lines = source.getLines();
-        var output = source.open();
-        var state = PROCESSING.COPY;
-        final var macro = new StringBuilder();
-        var lineNr = 0;
+        List<String> lines = source.getLines();
+        Segment output = source.open();
+        JamalGenerator.PROCESSING state = PROCESSING.COPY;
+        final StringBuilder macro = new StringBuilder();
+        int lineNr = 0;
         int positionLineNr = 0;
-        for (final var line : lines) {
+        for (final String line : lines) {
             lineNr++;
             switch (state) {
                 case COPY:

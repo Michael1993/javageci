@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import javax0.geci.tools.GeciCompatibilityTools;
 
 @SuppressWarnings("FieldCanBeLocal")
 @ReplCommandBuilder.Geci(value = "fluent", definedBy = "javax0.geci.buildfluent.TestReplCommandBuilderFluenter::sourceBuilderGrammar")
@@ -52,7 +53,7 @@ public class ReplCommandBuilder {
 
     private void noParameters() {
         if (parameters == null) {
-            this.parameters = new HashSet<>(Set.of());
+            this.parameters = new HashSet<>(GeciCompatibilityTools.createSet());
         } else {
             throw new IllegalArgumentException(
                     "You cannot define parameters and noParameters for the same command");
@@ -61,7 +62,7 @@ public class ReplCommandBuilder {
 
     private void parameter(String parameter) {
         if (parameters == null) {
-            this.parameters = new HashSet<>(Set.of(parameter));
+            this.parameters = new HashSet<>(GeciCompatibilityTools.createSet(parameter));
         } else {
             this.parameters.add(parameter);
         }

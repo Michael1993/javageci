@@ -11,7 +11,7 @@ public class TestDelegator {
 
     @Test
     public void testDelegator() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(
                 geci.source(maven()
                         .module("javageci-examples")

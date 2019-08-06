@@ -57,7 +57,7 @@ public class SymbolLiteral implements LexEater {
 
     @Override
     public LexicalElement apply(StringBuilder sb) {
-        for( final var s : symbols ){
+        for( final String s : symbols ){
             if( sb.length() >= s.length() && sb.subSequence(0,s.length()).equals(s)){
                 sb.delete(0,s.length());
                 return new LexicalElement.Symbol(s);

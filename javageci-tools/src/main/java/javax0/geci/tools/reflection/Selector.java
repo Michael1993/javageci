@@ -1,5 +1,6 @@
 package javax0.geci.tools.reflection;
 
+import java.lang.annotation.Annotation;
 import javax0.geci.tools.MethodTool;
 
 import java.lang.reflect.*;
@@ -89,7 +90,7 @@ public class Selector<T> {
      * @return {@code this} object to allow method chaining
      */
     public static Selector compile(String expression) {
-        final var it = new Selector();
+        final Selector it = new Selector();
         it.top = SelectorCompiler.compile(expression);
         return it;
     }
@@ -122,7 +123,7 @@ public class Selector<T> {
         selector("member", m -> toClass(m).isMemberClass());
         selector("local", m -> toClass(m).isLocalClass());
         selector("extends", m -> {
-            final var superClass = toClass(m).getSuperclass();
+            final Class<?> superClass = toClass(m).getSuperclass();
             return superClass != null && !"java.lang.Object".equals((superClass.getCanonicalName()));
         });
 
@@ -209,13 +210,13 @@ public class Selector<T> {
      * interface extends directly or through transitive closure of the interfaces extending each other.
      */
     private boolean methodImplements(Method m) {
-        final var args = m.getParameterTypes();
-        final var name = m.getName();
+        final Class<?>[] args = m.getParameterTypes();
+        final String name = m.getName();
         if (m.getDeclaringClass().isInterface() && !m.isDefault() || Modifier.isAbstract(m.getModifiers())) {
             return false;
         }
-        final var interfaces = collectInterfaces(m.getDeclaringClass());
-        for (final var interfAce : interfaces) {
+        final Set<Class<?>> interfaces = collectInterfaces(m.getDeclaringClass());
+        for (final Class<?> interfAce : interfaces) {
             if (classHas(interfAce, name, args)) return true;
         }
         return false;
@@ -244,7 +245,7 @@ public class Selector<T> {
             return false;
         }
         Class[] interfaces = klass.getInterfaces();
-        for (final var iface : interfaces) {
+        for (final Class<?> iface : interfaces) {
             if (regex.matcher(iface.getName()).find()) {
                 return true;
             }
@@ -261,7 +262,7 @@ public class Selector<T> {
      */
     private Set<Class<?>> collectInterfaces(Class<?> klass) {
         final Set<Class<?>> returnSet = new HashSet<>();
-        for (final var interfAce : klass.getInterfaces()) {
+        for (final Class<?> interfAce : klass.getInterfaces()) {
             collectInterfaces(interfAce, returnSet);
         }
         return returnSet;
@@ -279,16 +280,16 @@ public class Selector<T> {
             return;
         }
         returnSet.add(klass);
-        for (final var interfAce : klass.getInterfaces()) {
+        for (final Class<?> interfAce : klass.getInterfaces()) {
             collectInterfaces(interfAce, returnSet);
         }
     }
 
 
     private boolean methodOverrides(Method m) {
-        final var args = m.getParameterTypes();
-        final var name = m.getName();
-        for (var klass = m.getDeclaringClass().getSuperclass(); klass != null; klass = klass.getSuperclass()) {
+        final Class<?>[] args = m.getParameterTypes();
+        final String name = m.getName();
+        for (Class<?> klass = m.getDeclaringClass().getSuperclass(); klass != null; klass = klass.getSuperclass()) {
             if (classHas(klass, name, args)) return true;
         }
         return false;
@@ -311,7 +312,7 @@ public class Selector<T> {
      * @return {@code true} if a type is found for {@code m} or throws exception
      */
     private boolean only(T m, Class<?>... classes) {
-        for (final var klass : classes) {
+        for (final Class<?> klass : classes) {
             if (klass.isAssignableFrom(m.getClass())) return true;
         }
         throw new IllegalArgumentException("Selector cannot be applied to " + m.getClass());
@@ -380,7 +381,7 @@ public class Selector<T> {
     }
 
     private boolean matchOr(T m, SelectorNode.Or node) {
-        for (final var sub : node.subNodes) {
+        for (final SelectorNode sub : node.subNodes) {
             if (match(m, sub)) {
                 return true;
             }
@@ -389,7 +390,7 @@ public class Selector<T> {
     }
 
     private boolean matchAnd(T m, SelectorNode.And node) {
-        for (final var sub : node.subNodes) {
+        for (final SelectorNode sub : node.subNodes) {
             if (!match(m, sub)) {
                 return false;
             }
@@ -408,14 +409,14 @@ public class Selector<T> {
             return !match(m, ((SelectorNode.Not) node).subNode);
         }
         if (node instanceof SelectorNode.Regex) {
-            final var regexNode = (SelectorNode.Regex) node;
+            final SelectorNode.Regex regexNode = (SelectorNode.Regex) node;
             if (!regexMemberSelectors.containsKey(regexNode.name)) {
                 throw new IllegalArgumentException("There is no regex matcher functionality for '" + regexNode.name + "'");
             }
             return regexMemberSelectors.get(regexNode.name).apply(m, regexNode.regex);
         }
         if (node instanceof SelectorNode.Terminal) {
-            final var terminalNode = (SelectorNode.Terminal) node;
+            final SelectorNode.Terminal terminalNode = (SelectorNode.Terminal) node;
             if (!selectors.containsKey(terminalNode.terminal)) {
                 throw new IllegalArgumentException("The selector '" + terminalNode.terminal + "' is not known.");
             }
@@ -425,7 +426,7 @@ public class Selector<T> {
     }
 
     private boolean hasAnnotations(AnnotatedElement m) {
-        final var ann = m.getAnnotations();
+        final Annotation[] ann = m.getAnnotations();
         return ann != null && ann.length > 0;
     }
 

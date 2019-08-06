@@ -7,21 +7,21 @@ public class TestJavaSource {
 
     @Test
     public void testSourceBuilder() {
-        var source = new JavaSource();
-        var className = "MyClass";
-        try (var klass = source.open("public class %s ", className)) {
+        JavaSource source = new JavaSource();
+        String className = "MyClass";
+        try (JavaSource klass = source.open("public class %s ", className)) {
             klass.write("private final String z;")
                 .newline();
-            try (var constructor = klass.open("public %s(String z)", className)) {
+            try (JavaSource constructor = klass.open("public %s(String z)", className)) {
                 constructor.write("this.z = z;");
             }
             klass.newline();
-            try (var method = klass.open("public void static main(String[] args)")) {
+            try (JavaSource method = klass.open("public void static main(String[] args)")) {
                 method.comment("this is some comment")
                     .statement("var z = new StringBuilder()")
                     .statement("var i = 0");
-                try (var whBl = method.whileStatement("i<10")) {
-                    try (var ifBl = whBl.ifStatement(" z.length() == 0 ")) {
+                try (JavaSource whBl = method.whileStatement("i<10")) {
+                    try (JavaSource ifBl = whBl.ifStatement(" z.length() == 0 ")) {
                         ifBl.statement("z.append(\"a\")")
                             .elseStatement()
                             .statement("z.append(\"b\")");

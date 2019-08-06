@@ -33,7 +33,7 @@ public class Geci implements javax0.geci.api.Geci {
     public static final int TOUCHED = ~0x02;
     public static final int UNTOUCHED = ~0x04;
     public static final int NONE = 0xFF;
-    private static final Logger LOG = LoggerFactory.getLogger();
+    private static final Logger LOG = LoggerFactory.getLogger(Geci.class);
     private final Map<Source.Set, javax0.geci.api.DirectoryLocator> directories = new HashMap<>();
     private final List<Generator> generators = new ArrayList<>();
     private final Set<Source> modifiedSources = new HashSet<>();
@@ -131,14 +131,14 @@ public class Geci implements javax0.geci.api.Geci {
      * @return the detailed error message
      */
     public String failed() {
-        final var sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append('\n');
         sb.append(FAILED).append('\n');
         sb.append('\n');
         sb.append(String.format("The file%s that %s modified:",
                 modifiedSources.size() > 1 ? "s" : "",
                 modifiedSources.size() > 1 ? "were" : "was")).append('\n');
-        for (final var source : modifiedSources) {
+        for (final Source source : modifiedSources) {
             sb.append(source.getAbsoluteFile()).append('\n');
         }
         sb.append('\n');
@@ -270,7 +270,7 @@ public class Geci implements javax0.geci.api.Geci {
 
         injectContextIntoGenerators();
 
-        final var phases = generators.stream()
+        final int phases = generators.stream()
                 .mapToInt(Generator::phases)
                 .max()
                 .orElse(1);
@@ -288,8 +288,8 @@ public class Geci implements javax0.geci.api.Geci {
         collector.registerSplitHelpers(splitHelpers);
         collector.collect(onlys, ignores, outputSet);
         for (int phase = 0; phase < phases; phase++) {
-            for (final var source : collector.getSources()) {
-                for (var generator : generators) {
+            for (final javax0.geci.engine.Source source : collector.getSources()) {
+                for (Generator generator : generators) {
                     if (generator.activeIn(phase)) {
                         source.allowDefaultSegment = false;
                         source.currentGenerator = generator;
@@ -307,19 +307,19 @@ public class Geci implements javax0.geci.api.Geci {
     }
 
     private boolean sourcesModifiedAndSave(FileCollector collector) throws IOException {
-        var generated = false;
-        var allSources = Stream.concat(
+        boolean generated = false;
+        Set<javax0.geci.engine.Source> allSources = Stream.concat(
                 collector.getSources().stream(),
                 collector.getNewSources().stream()
         ).collect(Collectors.toSet());
-        for (var source : allSources) {
+        for (javax0.geci.engine.Source source : allSources) {
             if (source.isTouched() && source.isModified(getSourceComparator(source))) {
                 source.save();
                 modifiedSources.add(source);
                 generated = true;
             }
         }
-        for (var source : Stream.concat(collector.getSources().stream(), collector.getNewSources().stream()).collect(Collectors.toSet())) {
+        for (javax0.geci.engine.Source source : Stream.concat(collector.getSources().stream(), collector.getNewSources().stream()).collect(Collectors.toSet())) {
             if (modifiedSources.contains(source)) {
                 if ((whatToLog & ~MODIFIED) == 0) {
                     LOG.info("MODIFIED  '%s'", source.getAbsoluteFile());
@@ -343,7 +343,7 @@ public class Geci implements javax0.geci.api.Geci {
     }
 
     private void logSourceMessages(javax0.geci.engine.Source source) {
-        for (var entry : source.logEntries) {
+        for (SourceLogger.LogEntry entry : source.logEntries) {
             final String generatorId;
             if (entry.generator instanceof AbstractJavaGenerator) {
                 generatorId = ((AbstractJavaGenerator) entry.generator).mnemonic();
@@ -355,12 +355,12 @@ public class Geci implements javax0.geci.api.Geci {
     }
 
     private boolean sourcesConsolidate(FileCollector collector) {
-        var touched = false;
-        for (var source : collector.getSources()) {
+        boolean touched = false;
+        for (javax0.geci.engine.Source source : collector.getSources()) {
             source.consolidate();
             touched = touched || source.isTouched();
         }
-        for (var source : collector.getNewSources()) {
+        for (javax0.geci.engine.Source source : collector.getNewSources()) {
             source.consolidate();
             touched = touched || source.isTouched();
         }

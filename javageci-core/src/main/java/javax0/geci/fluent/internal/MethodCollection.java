@@ -57,7 +57,7 @@ public class MethodCollection {
         this.klass = klass;
         methodSet = collectMethods();
         wrapperIfIsNeeded = needsWrapperInterface();
-        var types = allArgumentTypes();
+        Set<String> types = allArgumentTypes();
         collectDuplicates(types);
         buildTypeMapping(types);
         methodMap = collect();
@@ -118,7 +118,7 @@ public class MethodCollection {
      * @return the method object or {@code null} if the method is not in the class
      */
     public Method get(String name) {
-        var md = get0(name);
+        MethodData md = get0(name);
         if (md == null) {
             return null;
         } else {
@@ -136,7 +136,7 @@ public class MethodCollection {
      * @return true is the method is a final in the fluent api call, and false otherwise
      */
     public Boolean isExitNode(String name) {
-        var md = get0(name);
+        MethodData md = get0(name);
         if (md == null) {
             return null;
         } else {
@@ -154,7 +154,7 @@ public class MethodCollection {
     }
 
     private void clude(String method, boolean b) {
-        var md = get0(method);
+        MethodData md = get0(method);
         if (md == null) {
             throw new GeciException("Method '" + method + "' does not exist, can not be exlcuded from the fluent interface.");
         } else {
@@ -164,7 +164,7 @@ public class MethodCollection {
 
 
     public Boolean isFluentNode(String name) {
-        var md = get0(name);
+        MethodData md = get0(name);
         if (md == null) {
             return null;
         } else {
@@ -181,19 +181,19 @@ public class MethodCollection {
      * @param name the name or the signature of the method
      */
     public void exitNode(String name) {
-        var md = get0(name);
+        MethodData md = get0(name);
         md.isExitNodeMethod = true;
     }
 
     private MethodData get0(String name) {
         if (name.contains("(")) {
-            var key = normalize(name);
+            String key = normalize(name);
             return methodMap.get(key);
         }
         MethodData methodData = null;
-        var start = name + "(";
+        String start = name + "(";
         boolean found = false;
-        for (var signature : methodMap.keySet()) {
+        for (String signature : methodMap.keySet()) {
             if (signature.startsWith(start)) {
                 if (found) {
                     throw new GeciException("The method name '" + name + "' is ambiguous.");
@@ -231,18 +231,18 @@ public class MethodCollection {
      * @return the normalized form of the class.
      */
     private String normalize(String s) {
-        var norming = s;
-        for (var type : typeMapping.keySet()) {
+        String norming = s;
+        for (String type : typeMapping.keySet()) {
             norming = norming.replace(type, typeMapping.get(type));
         }
         return norming;
     }
 
     private String signature(Method method) {
-        var arglist = Arrays.stream(method.getGenericParameterTypes())
+        String arglist = Arrays.stream(method.getGenericParameterTypes())
             .map(t -> normalize(t.getTypeName()))
             .collect(Collectors.joining(","));
-        var exceptionlist = Arrays.stream(method.getGenericExceptionTypes())
+        String exceptionlist = Arrays.stream(method.getGenericExceptionTypes())
             .map(t -> normalize(t.getTypeName()))
             .collect(Collectors.joining(","));
         return method.getName() +
@@ -259,7 +259,7 @@ public class MethodCollection {
      * @return the set of methods
      */
     private Set<Method> collectMethods() {
-        var set = Arrays.stream(klass.getMethods())
+        Set<Method> set = Arrays.stream(klass.getMethods())
             .filter(this::isNeeded).collect(Collectors.toCollection(HashSet::new));
         if (klass != Object.class) {
             set.addAll(Arrays.stream(klass.getDeclaredMethods())
@@ -287,9 +287,9 @@ public class MethodCollection {
      * @return {@code true} if there is the need to generate this interface
      */
     private boolean needsWrapperInterface() {
-        for (var method : klass.getMethods()) {
+        for (Method method : klass.getMethods()) {
             if (isNeeded(method)) {
-                for (var parameterClass : method.getParameterTypes()) {
+                for (Class<?> parameterClass : method.getParameterTypes()) {
                     if (parameterClass == klass) return true;
                 }
             }
@@ -317,7 +317,7 @@ public class MethodCollection {
     private void collectDuplicates(Set<String> types) {
         isMultiple.clear();
         types.forEach(type -> {
-            var s = simple(type);
+            String s = simple(type);
             isMultiple.put(s, isMultiple.containsKey(s));
         });
     }
@@ -340,9 +340,9 @@ public class MethodCollection {
      */
     @Override
     public String toString() {
-        var s = new StringBuilder();
+        StringBuilder s = new StringBuilder();
         s.append("{\n");
-        for (var key : new TreeSet<>(methodMap.keySet())) {
+        for (String key : new TreeSet<>(methodMap.keySet())) {
             s.append("  \"").append(key).append("\" -> ").append(methodMap.get(key).method.getName()).append("\n");
         }
         s.append("}");

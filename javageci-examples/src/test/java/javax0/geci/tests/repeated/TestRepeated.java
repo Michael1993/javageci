@@ -12,7 +12,7 @@ public class TestRepeated {
     @Test
     @DisplayName("Execute the repeated code generation for the core generators source code")
     void coreGeneratorsRepeated() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(
                 geci.source("./javageci-core/src/main/java/", "../javageci-core/src/main/java/")
                         .register(Repeated.builder()

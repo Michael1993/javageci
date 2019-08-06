@@ -6,6 +6,7 @@ import javax0.geci.engine.RegexBasedSegmentSplitHelper;
 
 import java.util.List;
 import java.util.regex.Pattern;
+import javax0.geci.tools.GeciCompatibilityTools;
 
 public class MarkdownSegmentSplitHelper extends RegexBasedSegmentSplitHelper {
     public MarkdownSegmentSplitHelper() {
@@ -38,13 +39,13 @@ public class MarkdownSegmentSplitHelper extends RegexBasedSegmentSplitHelper {
 
     @Override
     public SegmentSplitHelper.Matcher match(List<String> lines, int i) {
-        final var line = lines.get(i);
-        if (line.stripLeading().startsWith("<!--")) {
-            final var sb = new StringBuilder();
+        final String line = lines.get(i);
+        if (GeciCompatibilityTools.stripLeading(line).startsWith("<!--")) {
+            final StringBuilder sb = new StringBuilder();
             int j;
             for (j = i; j < lines.size(); j++) {
                 sb.append(lines.get(j));
-                if (lines.get(j).stripTrailing().endsWith("-->")) {
+                if (GeciCompatibilityTools.stripTrailing(lines.get(j)).endsWith("-->")) {
                     break;
                 }
             }

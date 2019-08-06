@@ -9,7 +9,7 @@ public class TestConfigBuilder {
 
     @Test
     void buildGenerators() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(
                 geci.source(
                         "./javageci-core/src/main/java/",

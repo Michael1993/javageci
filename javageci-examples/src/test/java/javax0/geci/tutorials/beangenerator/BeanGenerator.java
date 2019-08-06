@@ -1,9 +1,14 @@
 // snippet BeanGenerator_head_00
 package javax0.geci.tutorials.beangenerator;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractGeneratorEx;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -25,19 +30,19 @@ public class BeanGenerator extends AbstractGeneratorEx {
 //          ...
 // end snippet
 // snippet BeanGenerator_main2
-            final var newKlass = source.getKlassSimpleName();
-            final var pckage = source.getPackageName();
-            final var target = source.newSource(set("java"), newKlass + ".java");
-            final var doc = getDocument(source);
+            final String newKlass = source.getKlassSimpleName();
+            final String pckage = source.getPackageName();
+            final Source target = source.newSource(set("java"), newKlass + ".java");
+            final Document doc = getDocument(source);
 // end snippet
 // snippet BeanGenerator_main3
-            try (final var segment = target.open()) {
+            try (final Segment segment = target.open()) {
                 segment.write("package " + pckage + ";");
                 segment.write_r("public class " + newKlass + " {");
-                var fields = doc.getElementsByTagName("field");
-                for (var index = 0; index < fields.getLength(); index++) {
-                    var field = fields.item(index);
-                    var attributes = field.getAttributes();
+                NodeList fields = doc.getElementsByTagName("field");
+                for (int index = 0; index < fields.getLength(); index++) {
+                    Node field = fields.item(index);
+                    NamedNodeMap attributes = field.getAttributes();
                     String name = attributes.getNamedItem("name").getNodeValue();
                     String type = attributes.getNamedItem("type").getNodeValue();
                     segment.write("private " + type + " " + name + ";");
@@ -61,8 +66,8 @@ public class BeanGenerator extends AbstractGeneratorEx {
 
     // snippet BeanGenerator_aux
     private Document getDocument(Source source) throws ParserConfigurationException, SAXException, IOException {
-        final var dbFactory = DocumentBuilderFactory.newInstance();
-        final var dBuilder = dbFactory.newDocumentBuilder();
+        final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         return dBuilder.parse(new InputSource(new StringReader(source.toString())));
     }
     //end snippet

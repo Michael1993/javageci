@@ -1,13 +1,12 @@
 package javax0.geci.jamal.util;
 
-import javax0.geci.tools.GeciReflectionTools;
-import javax0.jamal.api.BadSyntax;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax0.geci.tools.GeciReflectionTools;
+import javax0.jamal.api.BadSyntax;
 
 /**
  * Entity is a field or a method. Stringer is something that converts to and from string. This class can convert a field
@@ -47,8 +46,8 @@ public class EntityStringer {
      * @return the fingerprint
      */
     public static String method2Fingerprint(Method method) {
-        final var className = method.getDeclaringClass().getCanonicalName();
-        final var argList = Arrays.stream(method.getGenericParameterTypes())
+        final String className = method.getDeclaringClass().getCanonicalName();
+        final String argList = Arrays.stream(method.getGenericParameterTypes())
                 .map(Type::getTypeName)
                 .collect(Collectors.joining("|"));
         return className + "|" + method.getName() + "|" + argList;
@@ -75,7 +74,7 @@ public class EntityStringer {
      * @return the fingerprint
      */
     public static String field2Fingerprint(Field field) {
-        final var className = field.getDeclaringClass().getCanonicalName();
+        final String className = field.getDeclaringClass().getCanonicalName();
         return className + "|" + field.getName();
     }
 
@@ -96,16 +95,16 @@ public class EntityStringer {
      * @throws BadSyntax if the method cannot be found
      */
     public static Method fingerprint2Method(String fingerprint) throws BadSyntax {
-        final var parts = fingerprint.split("\\|", -1);
+        final String[] parts = fingerprint.split("\\|", -1);
         if (parts.length < 2) {
             throw new BadSyntax("Method fingerprint '" + fingerprint +
                     "' is badly formatted, does not have 'class|name' parts.");
         }
         try {
-            final var klass = GeciReflectionTools.classForName(parts[0]);
-            final var name = parts[1];
+            final Class<?> klass = GeciReflectionTools.classForName(parts[0]);
+            final String name = parts[1];
             if (parts.length > 2) {
-                final var argClasses = Arrays.stream(parts).skip(2).map(EntityStringer::forName).toArray(Class[]::new);
+                final Class<?>[] argClasses = Arrays.stream(parts).skip(2).map(EntityStringer::forName).toArray(Class[]::new);
                 return GeciReflectionTools.getMethod(klass, name, argClasses);
             } else {
                 return GeciReflectionTools.getMethod(klass, name);
@@ -141,14 +140,14 @@ public class EntityStringer {
      * @throws BadSyntax if the argument has no | in it or uses a class or field that is not available
      */
     public static Field fingerprint2Field(String fingerprint) throws BadSyntax {
-        final var parts = fingerprint.split("\\|", -1);
+        final String[] parts = fingerprint.split("\\|", -1);
         if (parts.length < 2) {
             throw new BadSyntax("Fields fingerprint '" + fingerprint +
                     "' is badly formatted, does not have 'class|name' parts.");
         }
         try {
-            final var klass = GeciReflectionTools.classForName(parts[0]);
-            final var name = parts[1];
+            final Class<?> klass = GeciReflectionTools.classForName(parts[0]);
+            final String name = parts[1];
             return GeciReflectionTools.getField(klass, name);
         } catch (ClassNotFoundException e) {
             throw new BadSyntax("Class in fingerprint '" + fingerprint + "' cannot be found.", e);

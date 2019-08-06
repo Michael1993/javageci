@@ -1,5 +1,6 @@
 package javax0.geci.jamal.reflection;
 
+import java.lang.reflect.Method;
 import javax0.geci.jamal.util.EntityStringer;
 import javax0.geci.tools.GeciReflectionTools;
 import javax0.jamal.api.Input;
@@ -19,8 +20,8 @@ public class Methods implements Macro {
 
     @Override
     public String evaluate(Input in, Processor processor) {
-        final var parser = FieldsMethodsParser.parse(in.toString(), "methods");
-        var allMethods = GeciReflectionTools.getAllMethodsSorted(parser.klass);
+        final FieldsMethodsParser parser = FieldsMethodsParser.parse(in.toString(), "methods");
+        Method[] allMethods = GeciReflectionTools.getAllMethodsSorted(parser.klass);
         return Arrays.stream(allMethods).filter(parser.selector::match)
                 .map(EntityStringer::method2Fingerprint)
                 .collect(Collectors.joining(","));

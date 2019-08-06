@@ -1,5 +1,6 @@
 package javax0.geci.consistency;
 
+import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -42,8 +43,8 @@ public class Xml {
     }
 
     private Xml(File file) throws ParserConfigurationException, IOException, SAXException {
-        var dbFactory = DocumentBuilderFactory.newInstance();
-        final var dBuilder = dbFactory.newDocumentBuilder();
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         doc = dBuilder.parse(file);
         xPath = XPathFactory.newInstance().newXPath();
     }
@@ -56,10 +57,10 @@ public class Xml {
      * @throws XPathExpressionException if something happens during parsing
      */
     public List<String> gets(String path) throws XPathExpressionException {
-        var nodes = (NodeList) xPath.evaluate(path, doc, XPathConstants.NODESET);
-        var strings = new ArrayList<String>(nodes.getLength());
+        NodeList nodes = (NodeList) xPath.evaluate(path, doc, XPathConstants.NODESET);
+        List<String> strings = new ArrayList<String>(nodes.getLength());
         for (int i = 0; i < nodes.getLength(); ++i) {
-            var e = (Element) nodes.item(i);
+            Element e = (Element) nodes.item(i);
             strings.add(e.getTextContent());
         }
         return strings;

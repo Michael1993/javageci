@@ -1,6 +1,9 @@
 package javax0.geci.fluent.internal;
 
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax0.geci.api.GeciException;
+import javax0.geci.fluent.Fluent;
 import javax0.geci.fluent.FluentBuilder;
 import javax0.geci.fluent.syntax.Syntax;
 import javax0.geci.fluent.tree.FluentNodeCreator;
@@ -78,15 +81,15 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
      */
     private static Tree flatten(Tree tree) {
         if (tree.getModifier() == Node.ONE_OF) {
-            final var flat = new ArrayList<Node>();
-            for (final var node : tree.getList()) {
+            final List<Node> flat = new ArrayList<Node>();
+            for (final Node node : tree.getList()) {
                 if (node instanceof Tree) {
                     flat.add(flatten((Tree) node));
                 } else {
                     flat.add(node);
                 }
             }
-            final var terminalsOnly = new AtomicBoolean(true);
+            final AtomicBoolean terminalsOnly = new AtomicBoolean(true);
             tree.getList().clear();
             flat.forEach(t -> {
                 if (t.getModifier() == Node.ONE_TERMINAL_OF) {
@@ -121,13 +124,13 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
      * @param tree the tree to deduplicate
      */
     private static void deduplicate(Tree tree) {
-        for (final var node : tree.getList()) {
+        for (final Node node : tree.getList()) {
             if (node instanceof Tree) {
                 deduplicate((Tree) node);
             }
         }
         if (tree.getModifier() == Node.ONE_TERMINAL_OF || tree.getModifier() == Node.ONE_OF) {
-            final var set = new TreeSet<>(tree.getList());
+            final Set<Node> set = new TreeSet<>(tree.getList());
             tree.getList().clear();
             tree.getList().addAll(set);
         }
@@ -159,9 +162,9 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
             return pull(((Tree) node).getList().get(0));
         }
         if (node instanceof Tree) {
-            final var tree = (Tree) node;
-            final var pulled = new ArrayList<Node>();
-            for (final var n : tree.getList()) {
+            final Tree tree = (Tree) node;
+            final List<Node> pulled = new ArrayList<>();
+            for (final Node n : tree.getList()) {
                 pulled.add(pull(n));
             }
             tree.getList().clear();
@@ -183,10 +186,10 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
      */
     private static List<Node> flatten(List<Node> nodes, int modifier) {
 
-        final var pulled = new ArrayList<Node>();
+        final List<Node> pulled = new ArrayList<>();
         nodes.forEach(node -> pulled.add(pull(node)));
 
-        final var flat = new ArrayList<Node>();
+        final List<Node> flat = new ArrayList<>();
         pulled.forEach(
                 node -> {
                     if (node instanceof Tree) {
@@ -197,25 +200,25 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
                 }
         );
 
-        final var result = new ArrayList<Node>();
+        final List<Node> result = new ArrayList<>();
         if (modifier == Node.ONCE) {
-            for (final var node : flat) {
+            for (final Node node : flat) {
                 if (node instanceof Terminal) {
                     result.add(node);
                 } else if (node.getModifier() == Node.ONCE) {
-                    final var tree = (Tree) node;
+                    final Tree tree = (Tree) node;
                     result.addAll(flatten(tree.getList(), Node.ONCE));
                 } else {
-                    final var tree = (Tree) node;
+                    final Tree tree = (Tree) node;
                     result.add(tree.clone(node.getModifier(), flatten(tree.getList(), tree.getModifier())));
                 }
             }
         } else {
-            for (final var node : flat) {
+            for (final Node node : flat) {
                 if (node instanceof Terminal) {
                     result.add(node);
                 } else {
-                    final var tree = (Tree) node;
+                    final Tree tree = (Tree) node;
                     result.add(tree.clone(tree.getModifier(), flatten(tree.getList(), tree.getModifier())));
                 }
             }
@@ -253,7 +256,7 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
 
     @Override
     public FluentBuilder start(String method) {
-        final var next = copy();
+        final FluentBuilderImpl next = copy();
         next.startMethod = method;
         return next;
     }
@@ -268,7 +271,7 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
         if (clonerMethod.getReturnType() != klass) {
             throw new GeciException("The cloner method should return the type of the class it is in.");
         }
-        final var next = copy();
+        final FluentBuilderImpl next = copy();
         next.cloner = clonerMethod;
         return next;
     }
@@ -282,7 +285,7 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
     }
 
     private void assertClass(FluentBuilder... subs) {
-        for (var sub : subs) {
+        for (FluentBuilder sub : subs) {
             if (!(sub instanceof FluentBuilderImpl)) {
                 throw new GeciException("FluentBuilderImpl can not handle other FluentBuilder implementations");
             }
@@ -293,7 +296,7 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
     }
 
     private void assertThatMethodExistsInTheClass(String... methodArr) {
-        for (var method : methodArr) {
+        for (String method : methodArr) {
             if (methods.get(method) == null) {
                 throw new GeciException("Method '" + method + "' is not found in class " + klass);
             }
@@ -302,20 +305,20 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
 
     @Override
     public FluentBuilder implement(String interfaces) {
-        final var next = copy();
+        final FluentBuilderImpl next = copy();
         next.interfaces = interfaces;
         referenceTheMethodsIn(interfaces);
         return next;
     }
 
     private void referenceTheMethodsIn(String interfaces) {
-        var interfaceNames = Arrays.stream(interfaces.split(",")).map(String::trim).collect(Collectors.toList());
-        for (final var interfaceName : interfaceNames) {
-            var intrface = getInterfaceClass(interfaceName);
+        List<String> interfaceNames = Arrays.stream(interfaces.split(",")).map(String::trim).collect(Collectors.toList());
+        for (final String interfaceName : interfaceNames) {
+            Class<?> intrface = getInterfaceClass(interfaceName);
             if (!intrface.isInterface()) {
                 throw new GeciException(interfaceName + " is not an interface");
             }
-            for (var method : intrface.getMethods()) {
+            for (Method method : intrface.getMethods()) {
                 exclude(method.getName());
                 methods.get(method.getName());
             }
@@ -332,7 +335,7 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
 
     @Override
     public FluentBuilder fluentType(String type) {
-        final var next = copy();
+        final FluentBuilderImpl next = copy();
         next.lastType = type;
         return next;
     }
@@ -351,7 +354,7 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
     }
 
     private Terminal newTerminal(int modifiers, String method) {
-        var terminal = new Terminal(modifiers, method);
+        Terminal terminal = new Terminal(modifiers, method);
         if (lastName != null) {
             terminal.setName(lastName);
         }
@@ -366,7 +369,7 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
     }
 
     private <T> FluentBuilder buildWith(Function<T, Node> buildNode, T method) {
-        final var next = copy();
+        final FluentBuilderImpl next = copy();
         next.nodes.add(buildNode.apply(method));
         return next;
     }
@@ -389,14 +392,14 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
     @Override
     public FluentBuilder oneOrMore(String method) {
         assertThatMethodExistsInTheClass(method);
-        final var next = copy();
+        final FluentBuilderImpl next = copy();
         next.nodes.add(oneNode(method));
         next.nodes.add(zeroOrMoreNode(method));
         return next;
     }
 
     private Tree newTree(int modifiers, List<Node> nodes) {
-        var tree = new Tree(modifiers, nodes);
+        Tree tree = new Tree(modifiers, nodes);
         if (lastName != null) {
             tree.setName(lastName);
         }
@@ -407,7 +410,7 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
     @Override
     public FluentBuilder oneOrMore(FluentBuilder sub) {
         assertClass(sub);
-        final var next = copy();
+        final FluentBuilderImpl next = copy();
         next.nodes.add(oneNode(sub));
         next.nodes.add(zeroOrMoreNode(sub));
         return next;
@@ -464,8 +467,8 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
 
     @Override
     public FluentBuilder syntax(String syntaxDef) {
-        final var syntaxAnalyzer = new Syntax(new Lexer(syntaxDef), this);
-        final var next = copy();
+        final Syntax syntaxAnalyzer = new Syntax(new Lexer(syntaxDef), this);
+        final FluentBuilderImpl next = copy();
         next.nodes.addAll(syntaxAnalyzer.expression());
         return next;
     }
@@ -487,7 +490,7 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
     }
 
     private Node oneNode(FluentBuilder sub) {
-        final var nodes = nodesOf(sub);
+        final List<Node> nodes = nodesOf(sub);
         if (nodes.size() == 1) {
             return nodes.get(0);
         }
@@ -504,17 +507,17 @@ public class FluentBuilderImpl implements FluentBuilder, FluentNodeCreator {
         if (interfaceName == null || interfaceName.length() == 0) {
             return this;
         }
-        final var next = copy();
+        final FluentBuilderImpl next = copy();
         next.lastName = interfaceName;
         return next;
     }
 
     @Override
     public void optimize() {
-        final var flat = flatten(nodes, Node.ONCE);
+        final List<Node> flat = flatten(nodes, Node.ONCE);
         nodes.clear();
         nodes.addAll(flat);
-        for (final var node : nodes) {
+        for (final Node node : nodes) {
             if (node instanceof Tree) {
                 deduplicate((Tree) node);
             }

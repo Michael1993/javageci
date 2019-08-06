@@ -1,5 +1,6 @@
 package javax0.geci.repeated;
 
+import java.util.Arrays;
 import javax0.geci.api.GeciException;
 import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
@@ -7,6 +8,7 @@ import javax0.geci.templated.Context;
 import javax0.geci.templated.Triplet;
 import javax0.geci.tools.AbstractJavaGenerator;
 import javax0.geci.tools.CompoundParams;
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.TemplateLoader;
 
 import java.util.ArrayList;
@@ -61,25 +63,25 @@ public class Repeated extends AbstractJavaGenerator {
 
     @Override
     public void process(Source source, Class<?> klass, CompoundParams global) throws Exception {
-        final var local = localConfig(global);
-        final var startPattern = Pattern.compile(local.start);
-        final var matchLinePattern = Pattern.compile(local.matchLine);
-        final var endPattern = Pattern.compile(local.end);
-        final var templateStartPattern = Pattern.compile(local.templateStart);
-        final var templateEndPattern = Pattern.compile(local.templateEnd);
+        final Config local = localConfig(global);
+        final Pattern startPattern = Pattern.compile(local.start);
+        final Pattern matchLinePattern = Pattern.compile(local.matchLine);
+        final Pattern endPattern = Pattern.compile(local.end);
+        final Pattern templateStartPattern = Pattern.compile(local.templateStart);
+        final Pattern templateEndPattern = Pattern.compile(local.templateEnd);
         boolean switchOn = false;
         boolean templateOn = false;
-        final var loopVars = new ArrayList<String>();
-        final var parsed = new StringBuilder();
-        var selector = "";
+        final List<String> loopVars = new ArrayList<String>();
+        final StringBuilder parsed = new StringBuilder();
+        String selector = "";
         int templateTabbing = 0;
-        for (final var line : source.getLines()) {
+        for (final String line : source.getLines()) {
             if (!templateOn && !switchOn) {
                 if (startPattern.matcher(line).matches()) {
                     switchOn = true;
                     continue;
                 }
-                final var templateStartMatcher = templateStartPattern.matcher(line);
+                final Matcher templateStartMatcher = templateStartPattern.matcher(line);
                 if (templateStartMatcher.matches()) {
                     templateOn = true;
                     selector = templateStartMatcher.group(1);
@@ -120,26 +122,26 @@ public class Repeated extends AbstractJavaGenerator {
             }
         }
         if (local.values != null) {
-            loopVars.addAll(List.of(local.values.split(",")));
+            loopVars.addAll(Arrays.asList(local.values.split(",")));
         }
         if (local.valuesSupplier != null) {
             loopVars.addAll(local.valuesSupplier.apply(klass));
         }
-        for (final var key : config.templatesMap.keySet()) {
+        for (final String key : config.templatesMap.keySet()) {
             final Segment segment;
             if (key.isEmpty()) {
                 segment = source.open(global.id());
             } else {
                 segment = source.open(key);
             }
-            final var template = config.templatesMap.get(key);
+            final String template = config.templatesMap.get(key);
             if (template != null) {
                 config.ctx.triplet(source, klass, segment);
-                final var resolver = config.resolverMap.get(key);
-                final var define = config.defineMap.get(key);
-                for (final var loopVar : loopVars) {
-                    final var templateContent = TemplateLoader.getTemplateContent(template);
-                    final var resolvedTemplate = resolver == null ? templateContent : resolver.apply(config.ctx, templateContent);
+                final BiFunction<Context, String, String> resolver = config.resolverMap.get(key);
+                final BiConsumer<Context, String> define = config.defineMap.get(key);
+                for (final String loopVar : loopVars) {
+                    final String templateContent = TemplateLoader.getTemplateContent(template);
+                    final String resolvedTemplate = resolver == null ? templateContent : resolver.apply(config.ctx, templateContent);
                     segment.param("value", loopVar);
                     if (define != null) {
                         define.accept(config.ctx, loopVar);
@@ -183,7 +185,7 @@ public class Repeated extends AbstractJavaGenerator {
         return new Repeated().new Builder();
     }
 
-    private static final java.util.Set<String> implementedKeys = java.util.Set.of(
+    private static final java.util.Set<String> implementedKeys = GeciCompatibilityTools.createSet(
         "end",
         "matchLine",
         "start",
@@ -268,7 +270,7 @@ public class Repeated extends AbstractJavaGenerator {
         }
     }
     private Config localConfig(CompoundParams params){
-        final var local = new Config();
+        final Config local = new Config();
         local.ctx = config.ctx;
         local.setDefine(config.define);
         local.end = params.get("end",config.end);

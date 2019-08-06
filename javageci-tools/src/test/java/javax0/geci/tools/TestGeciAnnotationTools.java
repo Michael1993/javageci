@@ -1,5 +1,6 @@
 package javax0.geci.tools;
 
+import java.lang.annotation.Annotation;
 import javax0.geci.annotations.Geci;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ public class TestGeciAnnotationTools {
 
     @Test
     void test() {
-        var annotations = Ops.class.getAnnotations();
+        Annotation[] annotations = Ops.class.getAnnotations();
 //        Assertions.assertEquals(3, annotations.length);
 //        Assertions.assertEquals("noValue", GeciAnnotationTools.getValue(annotations[0]));
 //        Assertions.assertEquals("withValue habakukk='1'", GeciAnnotationTools.getValue(annotations[1]));

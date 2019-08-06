@@ -232,7 +232,7 @@ public class JavaSource implements AutoCloseable {
         if (s.trim().length() == 0) {
             newline();
         } else {
-            var formatted = String.format(s, parameters);
+            String formatted = String.format(s, parameters);
             if (formatted.contains("\n")) {
                 Arrays.stream(formatted.split("\r?\n")).forEach(this::write);
             } else {
@@ -329,8 +329,8 @@ public class JavaSource implements AutoCloseable {
     }
 
     public JavaSource args(String... args) {
-        var argList = String.join(",", args);
-        var sb = new StringBuilder();
+        String argList = String.join(",", args);
+        StringBuilder sb = new StringBuilder();
         if (lastMethod.modifiers != null && lastMethod.modifiers.length() > 0) {
             sb.append(lastMethod.modifiers).append(" ");
         }

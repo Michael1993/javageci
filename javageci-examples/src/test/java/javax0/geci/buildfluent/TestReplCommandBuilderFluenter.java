@@ -13,7 +13,7 @@ public class TestReplCommandBuilderFluenter {
     @Test
     @DisplayName("Fluent API for the CommandDefinitionBuilder is up-to-date")
     void generateFluendAPI4CommandDefinitionBuilder() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(geci
                         .source("../javageci-examples/src/main/java", "./javageci-examples/src/main/java")
                         .register(new Fluent())
@@ -23,7 +23,7 @@ public class TestReplCommandBuilderFluenter {
     }
 
     public static FluentBuilder sourceBuilderGrammar() {
-        var klass = FluentBuilder.from(ReplCommandBuilder.class);
+        FluentBuilder klass = FluentBuilder.from(ReplCommandBuilder.class);
         return klass
                 .syntax("kw(String) ( noParameters | parameters | parameter+ )?")
                 .zeroOrMore("regex")

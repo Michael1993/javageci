@@ -30,9 +30,9 @@ public abstract class AbstractFieldsGenerator extends AbstractJavaGenerator {
     @Override
     public final void process(Source source, Class<?> klass, CompoundParams global) throws Exception {
         preprocessHook(source, klass, global);
-        final var fields = declaredOnly ? GeciReflectionTools.getDeclaredFieldsSorted(klass) : GeciReflectionTools.getAllFieldsSorted(klass);
-        for (final var field : fields) {
-            var params = GeciReflectionTools.getParameters(field, mnemonic());
+        final Field[] fields = declaredOnly ? GeciReflectionTools.getDeclaredFieldsSorted(klass) : GeciReflectionTools.getAllFieldsSorted(klass);
+        for (final Field field : fields) {
+            CompoundParams params = GeciReflectionTools.getParameters(field, mnemonic());
             processFieldHook(source, klass, new CompoundParams(params, global), field);
         }
         processFieldHook(source, klass, global, fields);
@@ -52,7 +52,7 @@ public abstract class AbstractFieldsGenerator extends AbstractJavaGenerator {
      */
     @SuppressWarnings("unused")
     public void preprocess(Source source, Class<?> klass, CompoundParams global) throws Exception {
-        try (final var segment = source.safeOpen(global.id(mnemonic()))) {
+        try (final Segment segment = source.safeOpen(global.id(mnemonic()))) {
             preprocess(source, klass, global, segment);
         }
     }
@@ -163,7 +163,7 @@ public abstract class AbstractFieldsGenerator extends AbstractJavaGenerator {
      * @throws Exception any exception that the is thrown by the generator
      */
     public void process(Source source, Class<?> klass, CompoundParams params, Field field) throws Exception {
-        try (final var segment = source.safeOpen(params.id(mnemonic()))) {
+        try (final Segment segment = source.safeOpen(params.id(mnemonic()))) {
             process(source, klass, params, field, segment);
         }
     }
@@ -199,7 +199,7 @@ public abstract class AbstractFieldsGenerator extends AbstractJavaGenerator {
      * @throws Exception any exception that the is thrown by the generator
      */
     public void process(Source source, Class<?> klass, CompoundParams global, Field[] fields) throws Exception {
-        try (final var segment = source.safeOpen(global.id(mnemonic()))) {
+        try (final Segment segment = source.safeOpen(global.id(mnemonic()))) {
             process(source, klass, global, fields, segment);
         }
     }

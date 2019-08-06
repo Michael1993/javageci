@@ -10,7 +10,7 @@ public class Regex {
     private final StringBuilder sb = new StringBuilder();
 
     public Regex copy(){
-        var clone = new Regex();
+        Regex clone = new Regex();
         clone.sb.append(sb.toString());
         return clone;
     }
@@ -58,32 +58,32 @@ public class Regex {
             this.that = new javax0.geci.tests.fluent.Regex();
         }
         public Wrapper more(WrapperInterface arg1, int arg2, int arg3){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.more(((Wrapper)arg1).that,arg2,arg3);
             return next;
         }
         public Wrapper set(String arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.set(arg1);
             return next;
         }
         public Wrapper terminal(String arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.terminal(arg1);
             return next;
         }
         public Wrapper oneOrMore(WrapperInterface arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.oneOrMore(((Wrapper)arg1).that);
             return next;
         }
         public Wrapper zeroOrMore(WrapperInterface arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.zeroOrMore(((Wrapper)arg1).that);
             return next;
         }
         public Wrapper optional(WrapperInterface arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.optional(((Wrapper)arg1).that);
             return next;
         }

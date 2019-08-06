@@ -13,20 +13,20 @@ public class TestBuildFluentForSourceBuilder {
     @Test
     @DisplayName("Generate the fluent API for the JavaSource writer code generating API")
     public void testSourceBuilderGeneratedApiIsGood() throws Exception {
-        var geci = new Geci();
+        Geci geci = new Geci();
         Assertions.assertFalse(geci.source("../javageci-tools/src/main/java", "./javageci-tools/src/main/java").register(new Fluent()).generate(),
                 geci.failed());
     }
 
     public static FluentBuilder sourceBuilderGrammar() {
-        var source = FluentBuilder.from(JavaSource.class).start("builder").fluentType("Builder").implement("AutoCloseable").exclude("close");
-        var statement = source.oneOf("comment", "statement", "write", "write_r", "write_l", "newline", "open");
-        var methodStatement = source.oneOf(statement, source.oneOf("returnStatement()", "returnStatement(String,Object[])"));
-        var ifStatement = source.one("ifStatement").zeroOrMore(statement).optional(source.one("elseStatement").zeroOrMore(statement));
-        var whileStatement = source.one("whileStatement").zeroOrMore(statement);
-        var forStatement = source.one("forStatement").zeroOrMore(statement);
-        var methodDeclaration = source.one("method").optional("modifiers").optional("returnType").optional("exceptions").oneOf("noArgs", "args");
-        var method = source.name("MethodBody").one(methodDeclaration).zeroOrMore(methodStatement);
+        FluentBuilder source = FluentBuilder.from(JavaSource.class).start("builder").fluentType("Builder").implement("AutoCloseable").exclude("close");
+        FluentBuilder statement = source.oneOf("comment", "statement", "write", "write_r", "write_l", "newline", "open");
+        FluentBuilder methodStatement = source.oneOf(statement, source.oneOf("returnStatement()", "returnStatement(String,Object[])"));
+        FluentBuilder ifStatement = source.one("ifStatement").zeroOrMore(statement).optional(source.one("elseStatement").zeroOrMore(statement));
+        FluentBuilder whileStatement = source.one("whileStatement").zeroOrMore(statement);
+        FluentBuilder forStatement = source.one("forStatement").zeroOrMore(statement);
+        FluentBuilder methodDeclaration = source.one("method").optional("modifiers").optional("returnType").optional("exceptions").oneOf("noArgs", "args");
+        FluentBuilder method = source.name("MethodBody").one(methodDeclaration).zeroOrMore(methodStatement);
         return source.zeroOrMore(source.oneOf(statement, ifStatement, whileStatement, forStatement, method)).one("toString");
     }
 

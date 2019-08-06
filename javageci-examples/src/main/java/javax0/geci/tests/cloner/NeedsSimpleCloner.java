@@ -12,7 +12,7 @@ public class NeedsSimpleCloner extends AbstractNeedCloner {
     //<editor-fold id="cloner" cloneWith="false" copyCallsSuper="true" superCopyMethod="mopy">
     @javax0.geci.annotations.Generated("cloner")
     public NeedsSimpleCloner copy() {
-        final var it = new NeedsSimpleCloner();
+        final NeedsSimpleCloner it = new NeedsSimpleCloner();
         copy(it);
         return it;
     }

@@ -1,10 +1,13 @@
 package javax0.geci.cloner;
 
 import javax0.geci.annotations.Generated;
+import javax0.geci.api.Geci;
+import javax0.geci.api.Logger;
 import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractFilteredFieldsGenerator;
 import javax0.geci.tools.CompoundParams;
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.GeciReflectionTools;
 
 import java.lang.annotation.Annotation;
@@ -167,17 +170,17 @@ public class Cloner extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void preprocess(Source source, Class<?> klass, CompoundParams global, Segment segment) {
-        final var log = source.getLogger();
-        final var local = localConfig(global);
+        final Logger log = source.getLogger();
+        final Config local = localConfig(global);
         Field[] fields = Arrays.stream(GeciReflectionTools.getAllFieldsSorted(klass))
             .filter(field -> !Modifier.isFinal(field.getModifiers()))
             .filter(field -> !Modifier.isStatic(field.getModifiers()))
             .toArray(Field[]::new);
         writeGenerated(segment, config.generatedAnnotation);
-        final var fullyQualified = GeciReflectionTools.getSimpleGenericClassName(klass);
+        final String fullyQualified = GeciReflectionTools.getSimpleGenericClassName(klass);
         log.info("Creating %s %s %s()",local.cloneMethodProtection, fullyQualified, local.cloneMethod);
         segment.write_r("%s %s %s() {", local.cloneMethodProtection, fullyQualified, local.cloneMethod);
-        segment.write("final var it = new %s();", klass.getSimpleName())
+        segment.write("final %s it = new %s();", klass.getSimpleName(), klass.getSimpleName())
             .write("%s(it);",local.copyMethod)
             .write("return it;")
             .write_l("}");
@@ -189,7 +192,7 @@ public class Cloner extends AbstractFilteredFieldsGenerator {
         }
         segment.newline();
 
-        for (final var field : fields) {
+        for (final Field field : fields) {
             segment.write("it.%s = %s;", field.getName(), field.getName());
         }
         segment.write_l("}").newline();
@@ -197,10 +200,10 @@ public class Cloner extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void process(Source source, Class<?> klass, CompoundParams params, Field field, Segment segment) {
-        final var local = localConfig(params);
-        final var name = field.getName();
-        final var type = GeciReflectionTools.normalizeTypeName(field.getType().getName(), klass);
-        final var fullyQualified = GeciReflectionTools.getSimpleGenericClassName(klass);
+        final Config local = localConfig(params);
+        final String name = field.getName();
+        final String type = GeciReflectionTools.normalizeTypeName(field.getType().getName(), klass);
+        final String fullyQualified = GeciReflectionTools.getSimpleGenericClassName(klass);
         segment.write_r("%s with%s(%s %s) {", fullyQualified, ucase(name), type, name);
         if (toBoolean(local.cloneWith)) {
             segment.write("final var it = %s();", local.cloneMethod)
@@ -227,7 +230,7 @@ public class Cloner extends AbstractFilteredFieldsGenerator {
         return new Cloner().new Builder();
     }
 
-    private static final java.util.Set<String> implementedKeys = java.util.Set.of(
+    private static final java.util.Set<String> implementedKeys = GeciCompatibilityTools.createSet(
         "cloneMethod",
         "cloneMethodProtection",
         "cloneWith",
@@ -304,7 +307,7 @@ public class Cloner extends AbstractFilteredFieldsGenerator {
         }
     }
     private Config localConfig(CompoundParams params){
-        final var local = new Config();
+        final Config local = new Config();
         local.cloneMethod = params.get("cloneMethod",config.cloneMethod);
         local.cloneMethodProtection = params.get("cloneMethodProtection",config.cloneMethodProtection);
         local.cloneWith = params.get("cloneWith",config.cloneWith);

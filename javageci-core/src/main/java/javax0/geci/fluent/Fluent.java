@@ -1,6 +1,7 @@
 package javax0.geci.fluent;
 
 import javax0.geci.api.GeciException;
+import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.fluent.internal.ClassBuilder;
 import javax0.geci.fluent.internal.FluentBuilderImpl;
@@ -17,19 +18,19 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 public class Fluent extends AbstractJavaGenerator {
-    private static final Logger LOG = LoggerFactory.getLogger();
+    private static final Logger LOG = LoggerFactory.getLogger(Fluent.class);
 
     @Override
     public void process(Source source, Class<?> klass, CompoundParams global) throws Exception {
-        final var syntax = global.get("syntax");
-        final var definedBy = global.get("definedBy");
+        final String syntax = global.get("syntax");
+        final String definedBy = global.get("definedBy");
         if (syntax.length() > 0 && definedBy.length() > 0) {
             throw new GeciException("Both 'syntax' and 'definedBy' cannot be specified.");
         }
         try {
             final FluentBuilderImpl builder;
             if (definedBy.length() > 0) {
-                final var definingMethod = getDefiningMethod(definedBy, klass);
+                final Method definingMethod = getDefiningMethod(definedBy, klass);
                 definingMethod.setAccessible(true);
                 builder = (FluentBuilderImpl) definingMethod.invoke(null);
             } else if (syntax.length() > 0) {
@@ -42,8 +43,8 @@ public class Fluent extends AbstractJavaGenerator {
             LOG.debug("" + new Tree(Node.ONCE, builder.getNodes()));
             LOG.debug("Node structure after optimization.");
             LOG.debug("" + new Tree(Node.ONCE, builder.getNodes()));
-            var generatedCode = new ClassBuilder(builder).build();
-            try (var segment = source.open(global.get("id"))) {
+            String generatedCode = new ClassBuilder(builder).build();
+            try (Segment segment = source.open(global.get("id"))) {
                 segment.write(generatedCode);
             }
         } catch (InvocationTargetException ite) {
@@ -89,8 +90,8 @@ public class Fluent extends AbstractJavaGenerator {
             throw new GeciException("Fluent structure definedBy has to have 'className::methodName' format for class '"
                     + forClass + "'");
         }
-        var className = s.substring(0, sepPos);
-        var methodName = s.substring(sepPos + sepSize);
+        String className = s.substring(0, sepPos);
+        String methodName = s.substring(sepPos + sepSize);
         final Class<?> klass;
         try {
             klass = GeciReflectionTools.classForName(className);

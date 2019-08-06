@@ -28,8 +28,8 @@ public abstract class AbstractFilteredMethodsGenerator extends AbstractMethodsGe
     @Override
     protected final void processMethodHook(Source source, Class<?> klass, CompoundParams params, Method method)
         throws Exception {
-        var filter = params.get("filter", defaultFilterExpression());
-        var selector = Selector.compile(filter);
+        String filter = params.get("filter", defaultFilterExpression());
+        Selector selector = Selector.compile(filter);
         if (selector.match(method)) {
             processSelectedMethodHook(source, klass, params, method);
             methods.add(method);
@@ -59,7 +59,7 @@ public abstract class AbstractFilteredMethodsGenerator extends AbstractMethodsGe
     @Override
     protected final void processMethodHook(Source source, Class<?> klass, CompoundParams global, Method[] methods)
         throws Exception {
-        processSelectedMethodHook(source, klass, global, this.methods.toArray(Method[]::new));
+        processSelectedMethodHook(source, klass, global, this.methods.toArray(new Method[methods.length]));
     }
 
     /**

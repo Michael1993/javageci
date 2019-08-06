@@ -13,7 +13,7 @@ public class TestStringLiteral {
     @Test
     @DisplayName("Test string literals that are syntactically correct")
     void testStringLiterals(){
-        final var sut = new StringLiteral();
+        final StringLiteral sut = new StringLiteral();
         Assertions.assertEquals("",sut.apply(string("")).lexeme);
         Assertions.assertEquals("a",sut.apply(string("a")).lexeme);
         Assertions.assertEquals("\r",sut.apply(string("\\r")).lexeme);
@@ -31,7 +31,7 @@ public class TestStringLiteral {
     @Test
     @DisplayName("Test string literals that are syntactically incorrect")
     void testBadStringLiterals(){
-        final var sut = new StringLiteral();
+        final StringLiteral sut = new StringLiteral();
         Assertions.assertThrows(IllegalArgumentException.class, () -> sut.apply(string("\n")));
         Assertions.assertThrows(IllegalArgumentException.class, () -> sut.apply(string("\r")));
         Assertions.assertThrows(IllegalArgumentException.class, () -> sut.apply(string("\\z")));

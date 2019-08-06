@@ -1,36 +1,41 @@
 package javax0.geci.log;
 
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+
 public class Logger implements javax0.geci.api.Logger {
+
     public Logger(Class<?> forClass) {
-        this.LOGGER = System.getLogger(forClass.getName());
+        LogManager.getLogManager().getLogger(forClass.getName());
+        this.LOGGER = java.util.logging.Logger.getLogger(forClass.getName());
     }
 
-    private final System.Logger LOGGER;
+    private final java.util.logging.Logger LOGGER;
 
-    public void log(System.Logger.Level level, String format, Object... params) {
+    public void log(java.util.logging.Level level, String format, Object... params) {
         if (LOGGER.isLoggable(level)) {
-            var s = String.format(format, params);
+            String s = String.format(format, params);
             LOGGER.log(level, s);
         }
     }
 
     public void trace(String format, Object... params) {
-        log(System.Logger.Level.TRACE, format, params);
+        log(Level.FINER, format, params);
     }
 
     public void debug(String format, Object... params) {
-        log(System.Logger.Level.DEBUG, format, params);
+        log(Level.CONFIG, format, params);
     }
 
     public void info(String format, Object... params) {
-        log(System.Logger.Level.INFO, format, params);
+        log(Level.INFO, format, params);
     }
 
     public void warning(String format, Object... params) {
-        log(System.Logger.Level.WARNING, format, params);
+        log(Level.WARNING, format, params);
     }
 
     public void error(String format, Object... params) {
-        log(System.Logger.Level.ERROR, format, params);
+        log(Level.SEVERE, format, params);
     }
 }

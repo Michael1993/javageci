@@ -27,8 +27,8 @@ public abstract class AbstractFilteredFieldsGenerator extends AbstractFieldsGene
     @Override
     protected final void processFieldHook(Source source, Class<?> klass, CompoundParams params, Field field)
         throws Exception {
-        var filter = params.get("filter", defaultFilterExpression());
-        var selector = Selector.compile(filter);
+        String filter = params.get("filter", defaultFilterExpression());
+        Selector selector = Selector.compile(filter);
         if (selector.match(field)) {
             processSelectedFieldHook(source, klass, params, field);
             fields.add(field);
@@ -58,7 +58,7 @@ public abstract class AbstractFilteredFieldsGenerator extends AbstractFieldsGene
     @Override
     protected final void processFieldHook(Source source, Class<?> klass, CompoundParams global, Field[] fields)
             throws Exception {
-        processSelectedFieldHook(source, klass, global, this.fields.toArray(Field[]::new));
+        processSelectedFieldHook(source, klass, global, this.fields.toArray(new Field[fields.length]));
     }
 
     /**

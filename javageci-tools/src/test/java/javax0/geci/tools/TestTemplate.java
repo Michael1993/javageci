@@ -1,5 +1,10 @@
 package javax0.geci.tools;
 
+import static javax0.geci.tools.GeciCompatibilityTools.createMap;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,9 +17,9 @@ public class TestTemplate {
     @Test
     @DisplayName("When there are no params every string just returns as is")
     void emptyTest(){
-        final var sut = new Template(Map.of());
-        final var samples = List.of("alma", "{{kirte}}", "just {a{{nithing");
-        for( final var sample : samples) {
+        final Template sut = new Template(new HashMap<>());
+        final List<String> samples = Arrays.asList("alma", "{{kirte}}", "just {a{{nithing");
+        for( final String sample : samples) {
             Assertions.assertEquals(sample, sut.resolve(sample));
         }
     }
@@ -22,29 +27,28 @@ public class TestTemplate {
     @Test
     @DisplayName("When there are params they are replaced")
     void goodTest(){
-        final var sut = new Template(Map.of("a","b", "huhh","spooky"));
+        final Template sut = new Template(createMap("a","b", "huhh","spooky"));
             Assertions.assertEquals("this is a spooky baboon", sut.resolve("this is a {{huhh}} {{a}}a{{a}}oon"));
     }
 
     @Test
     @DisplayName("Parameters replaces also at the start")
     void startTest(){
-        final var sut = new Template(Map.of("a","b", "huhh","spooky"));
+        final Template sut = new Template(createMap("a","b", "huhh","spooky"));
         Assertions.assertEquals("bthis is {{a...}} spooky bab{{oon", sut.resolve("{{a}}this is {{a...}} {{huhh}} {{a}}a{{a}}{{oon"));
     }
 
     @Test
     @DisplayName("When there are params they are replaced but not the undefined")
     void goodTestStill(){
-        final var sut = new Template(Map.of("a","b", "huhh","spooky"));
+        final Template sut = new Template(createMap("a","b", "huhh","spooky"));
         Assertions.assertEquals("this is {{a...}} spooky baboon", sut.resolve("this is {{a...}} {{huhh}} {{a}}a{{a}}oon"));
     }
 
     @Test
     @DisplayName("Unterminated placeholders are handled gracefully")
     void unterminatedTest(){
-        final var sut = new Template(Map.of("a","b", "huhh","spooky"));
+        final Template sut = new Template(createMap("a","b", "huhh","spooky"));
         Assertions.assertEquals("this is {{a...}} spooky bab{{oon", sut.resolve("this is {{a...}} {{huhh}} {{a}}a{{a}}{{oon"));
     }
-
 }

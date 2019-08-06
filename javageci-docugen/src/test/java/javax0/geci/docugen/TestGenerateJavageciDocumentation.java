@@ -12,13 +12,13 @@ public class TestGenerateJavageciDocumentation {
     @DisplayName("Run the different snippets and generate test.md")
     void generateJavaGeciDocumenation() throws Exception {
         // snippet TestGenerateJavageciDocumentation
-        final var fragmentCollector = new Geci();
+        final Geci fragmentCollector = new Geci();
         fragmentCollector
             .source(Source.maven().module("javageci-docugen").mainSource())
             .register(FragmentCollector.builder().build())
             .generate();
 
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         int i = 0;
         Assertions.assertFalse(
             geci.context(fragmentCollector.context())

@@ -20,8 +20,8 @@ public class TestFluentBuilder {
 
     @Test
     public void testComplexBuildup() {
-        var t = FluentBuilder.from(TestClass.class);
-        var s = t.oneOf("y", "x", "w", "z");
+        FluentBuilder t = FluentBuilder.from(TestClass.class);
+        FluentBuilder s = t.oneOf("y", "x", "w", "z");
         Assertions.assertEquals("once optional? (y|x|w|z)? (a|b|c|d) h* m m* (y|x|w|z)* (y|x|w|z)?",
             t.cloner("a()").one("once")
                 .optional("optional")
@@ -37,8 +37,8 @@ public class TestFluentBuilder {
 
     @Test
     public void testClassMismatch() {
-        var t = FluentBuilder.from(TestClass.class);
-        var s = FluentBuilder.from(new TestClass() {
+        FluentBuilder t = FluentBuilder.from(TestClass.class);
+        FluentBuilder s = FluentBuilder.from(new TestClass() {
         }.getClass()).oneOf("y", "x", "w", "z");
         Assertions.assertThrows(GeciException.class, () ->
             t.one("once")

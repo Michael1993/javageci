@@ -1,8 +1,11 @@
 package javax0.geci.mapper;
 
+import java.lang.reflect.Field;
+import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractJavaGenerator;
 import javax0.geci.tools.CompoundParams;
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.GeciReflectionTools;
 import javax0.geci.tools.reflection.Selector;
 import javax0.jamal.Format;
@@ -78,13 +81,13 @@ public class Mapper extends AbstractJavaGenerator {
 
     @Override
     public void process(Source source, Class<?> klass, CompoundParams global) throws Exception {
-        final var gid = global.get("id");
-        var segment = source.open(gid);
+        final String gid = global.get("id");
+        Segment segment = source.open(gid);
         generateToMap(source, klass, global);
         generateFromMap(source, klass, global);
 
-        final var factory = global.get("factory", "new {{class}}()");
-        final var placeHolders = Map.of(
+        final String factory = global.get("factory", "new {{class}}()");
+        final Map<String, String> placeHolders = GeciCompatibilityTools.createMap(
                 "mnemonic", mnemonic(),
                 "generatedBy", generatedAnnotation.getCanonicalName(),
                 "class", klass.getSimpleName(),
@@ -92,7 +95,7 @@ public class Mapper extends AbstractJavaGenerator {
                 "Map", "java.util.Map",
                 "HashMap", "java.util.HashMap"
         );
-        final var rawContent = segment.getContent();
+        final String rawContent = segment.getContent();
         try {
             segment.setContent(Format.format(rawContent, placeHolders));
         } catch (BadSyntax badSyntax) {
@@ -101,16 +104,16 @@ public class Mapper extends AbstractJavaGenerator {
     }
 
     private void generateToMap(Source source, Class<?> klass, CompoundParams global) throws Exception {
-        final var fields = GeciReflectionTools.getAllFieldsSorted(klass);
-        final var gid = global.get("id");
-        var segment = source.open(gid);
+        final Field[] fields = GeciReflectionTools.getAllFieldsSorted(klass);
+        final String gid = global.get("id");
+        Segment segment = source.open(gid);
         segment.write_r(getResourceString("tomap.jam"));
-        for (final var field : fields) {
-            final var local = GeciReflectionTools.getParameters(field, mnemonic());
-            final var params = new CompoundParams(local, global);
-            final var filter = params.get("filter", DEFAULTS);
+        for (final Field field : fields) {
+            final CompoundParams local = GeciReflectionTools.getParameters(field, mnemonic());
+            final CompoundParams params = new CompoundParams(local, global);
+            final String filter = params.get("filter", DEFAULTS);
             if (Selector.compile(filter).match(field)) {
-                final var name = field.getName();
+                final String name = field.getName();
                 if (hasToMap(field.getType())) {
                     segment.write("map.put(\"%s\", %s == null ? null : %s.toMap0(cache));", field2MapKey(name), name, name);
                 } else {
@@ -123,7 +126,7 @@ public class Mapper extends AbstractJavaGenerator {
     }
 
     private String getResourceString(String resource) throws IOException {
-        return new String(getClass().getResourceAsStream(resource).readAllBytes(), StandardCharsets.UTF_8)
+        return new String(GeciCompatibilityTools.readBytesFromInput(getClass().getResourceAsStream(resource)), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
     }
 
@@ -153,17 +156,17 @@ public class Mapper extends AbstractJavaGenerator {
     }
 
     private void generateFromMap(Source source, Class<?> klass, CompoundParams global) throws IOException {
-        final var fields = GeciReflectionTools.getAllFieldsSorted(klass);
-        final var gid = global.get("id");
-        var segment = source.open(gid);
+        final Field[] fields = GeciReflectionTools.getAllFieldsSorted(klass);
+        final String gid = global.get("id");
+        Segment segment = source.open(gid);
 
         segment.write_r(getResourceString("frommap.jam"));
-        for (final var field : fields) {
-            final var local = GeciReflectionTools.getParameters(field, mnemonic());
-            final var params = new CompoundParams(local, global);
-            final var filter = params.get("filter", DEFAULTS);
+        for (final Field field : fields) {
+            final CompoundParams local = GeciReflectionTools.getParameters(field, mnemonic());
+            final CompoundParams params = new CompoundParams(local, global);
+            final String filter = params.get("filter", DEFAULTS);
             if (Selector.compile(filter).match(field)) {
-                final var name = field.getName();
+                final String name = field.getName();
                 if (hasFromMap(field.getType())) {
                     segment.write("it.%s = %s.fromMap0(({{Map}}<String,Object>)map.get(\"%s\"),cache);",
                             name,

@@ -86,22 +86,22 @@ public abstract class AbstractSnippeter extends AbstractGeneratorEx {
     @Override
     public void processEx(Source source) throws Exception {
         if (fileNamePattern.matcher(source.getAbsoluteFile()).find()) {
-            for (final var name : source.segmentNames()) {
-                final var segment = source.safeOpen(name);
-                final var sourceParams = segment.sourceParams();
+            for (final String name : source.segmentNames()) {
+                final Segment segment = source.safeOpen(name);
+                final CompoundParams sourceParams = segment.sourceParams();
                 sourceParams.setConstraints(source, "'snip'", allowedKeys);
-                final var snippetName = sourceParams.get("snippet", name);
+                final String snippetName = sourceParams.get("snippet", name);
                 if (snippets == null) {
                     throw new GeciException("The method class " + this.getClass().getName() + ".context() did not call 'super.context(context)'");
                 }
-                final var snippet = snippets.get(name, snippetName);
+                final Snippet snippet = snippets.get(name, snippetName);
                 if (snippet == null) {
                     throw new GeciException("The snippet '" + snippetName + "' is not defined but referenced in file '" + source.getAbsoluteFile() + "' in snippet");
                 }
                 if (this instanceof NonConfigurable) {
                     modify(source, segment, snippet, null);
                 } else {
-                    final var configString = sourceParams.get(mnemonic());
+                    final String configString = sourceParams.get(mnemonic());
                     if (configString.length() > 0) {
                         modify(source, segment, snippet, new CompoundParamsBuilder(configString).build());
                     }

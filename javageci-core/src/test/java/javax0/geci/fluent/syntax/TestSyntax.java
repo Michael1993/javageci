@@ -1,6 +1,8 @@
 package javax0.geci.fluent.syntax;
 
+import java.util.HashMap;
 import javax0.geci.api.GeciException;
+import javax0.geci.fluent.Fluent;
 import javax0.geci.fluent.FluentBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -15,8 +17,8 @@ public class TestSyntax {
     @Test
     @DisplayName("The whole syntax is defined in a single expression")
     void wholeSyntaxDefinedInOne() {
-        var klass = FluentBuilder.from(MyClass.class);
-        var sut = klass
+        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilder sut = klass
                 .syntax("kw(String) ( noParameters | parameters | parameter+ )? regex* usage help executor build");
         sut.optimize();
         Assertions.assertEquals(EXPECTED, sut.toString());
@@ -25,8 +27,8 @@ public class TestSyntax {
     @Test
     @DisplayName("The syntax is defined in two parts with interface name")
     void splitAndInterfaceName() {
-        var klass = FluentBuilder.from(MyClass.class);
-        var sut = klass
+        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilder sut = klass
                 .syntax("kw(String) ( noParameters | parameters | parameter+ )? regex* usage help executor")
                 .name("SpecialName")
                 .syntax("build");
@@ -37,8 +39,8 @@ public class TestSyntax {
     @Test
     @DisplayName("The syntax is defined in two 'syntax' parts with interface name and fluent api def in the middle")
     void splitAndMixedName() {
-        var klass = FluentBuilder.from(MyClass.class);
-        var sut = klass
+        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilder sut = klass
                 .syntax("kw(String) ( noParameters | parameters | parameter+ )?")
                 .one(klass.zeroOrMore("regex"))
                 .syntax("usage help executor")
@@ -50,8 +52,8 @@ public class TestSyntax {
     @Test
     @DisplayName("The syntax tree is flattened when there are multiple level of list of the same type")
     void flattenExpressions() {
-        var klass = FluentBuilder.from(MyClass.class);
-        var sut = klass
+        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilder sut = klass
                 .oneOf(klass.oneOf("regex", "help", "executor"), klass.oneOf("usage", "kw")).one("build");
         sut.optimize();
         Assertions.assertEquals("(executor|help|kw|regex|usage) build", sut.toString());
@@ -60,7 +62,7 @@ public class TestSyntax {
     @Test
     @DisplayName("The syntax tree is flattened when there are multiple deel level of list of the same type")
     void flattenDeepExpressions() {
-        var sut = FluentBuilder.from(MyClass.class)
+        FluentBuilder sut = FluentBuilder.from(MyClass.class)
                 .syntax(" executor | help | ( executor|regex) | regex |   (usage (executor |kw |( kw| kw)))");
         sut.optimize();
         Assertions.assertEquals("(executor|help|regex|(usage (executor|kw)))", sut.toString());
@@ -69,7 +71,7 @@ public class TestSyntax {
     @Test
     @DisplayName("Throws exception when syntax is split in an invalid way")
     void wrongSplitting() {
-        var klass = FluentBuilder.from(MyClass.class);
+        FluentBuilder klass = FluentBuilder.from(MyClass.class);
         Assertions.assertThrows(GeciException.class, () ->
                 klass.syntax("kw(String) ( noParameters | parameters | ")
                         .oneOrMore("parameter")
@@ -79,10 +81,10 @@ public class TestSyntax {
     @Test
     @DisplayName("or-ed alternatives do not need parentheses, | has higher precedence than listing")
     void syntaxExample1() {
-        var klass = FluentBuilder.from(MyClass.class);
-        final var sut = klass.syntax("kw (parameter | (usage help))");
+        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        final FluentBuilder sut = klass.syntax("kw (parameter | (usage help))");
         Assertions.assertEquals("kw (parameter|(usage help))", sut.toString());
-        final var sutWithoutParentheses = klass.syntax("kw parameter | (usage help)");
+        final FluentBuilder sutWithoutParentheses = klass.syntax("kw parameter | (usage help)");
         sut.optimize();
         Assertions.assertEquals("kw (parameter|(usage help))", sutWithoutParentheses.toString());
     }
@@ -90,8 +92,8 @@ public class TestSyntax {
     @Test
     @DisplayName("superfluous parentheses are ignored")
     void syntaxExample2() {
-        var klass = FluentBuilder.from(MyClass.class);
-        final var sut = klass.syntax("kw (((parameter | ((usage (help))))))");
+        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        final FluentBuilder sut = klass.syntax("kw (((parameter | ((usage (help))))))");
         sut.optimize();
         Assertions.assertEquals("kw (parameter|(usage help))", sut.toString());
     }
@@ -99,8 +101,8 @@ public class TestSyntax {
     @Test
     @DisplayName("chained modifiers are okay")
     void syntaxChainedModifier_tpq() {
-        var klass = FluentBuilder.from(MyClass.class);
-        final var sut = klass.syntax("(parameter+)?");
+        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        final FluentBuilder sut = klass.syntax("(parameter+)?");
         sut.optimize();
         Assertions.assertEquals("parameter*", sut.toString());
     }
@@ -118,7 +120,7 @@ public class TestSyntax {
     @Test
     @DisplayName("chained modifiers are okay and are optimized")
     void syntaxChainedModifier() {
-        final var modifierPairs = Map.of(
+        final Map<String, String> modifierPairs = mapFromStrings(
                 "**", "*",
                 "*?", "*",
                 "*+", "*",
@@ -129,13 +131,13 @@ public class TestSyntax {
                 "??", "?",
                 "?+", "*"
         );
-        for (final var entry : modifierPairs.entrySet()) {
-            final var key = entry.getKey();
-            final var value = entry.getValue();
+        for (final Map.Entry<String, String> entry : modifierPairs.entrySet()) {
+            final String key = entry.getKey();
+            final String value = entry.getValue();
             terminal:
             {
-                var klass = FluentBuilder.from(MyClass.class);
-                final var sut = klass.syntax(String.format("(parameter%s)%s", key.substring(0, 1), key.substring(1)));
+                FluentBuilder klass = FluentBuilder.from(MyClass.class);
+                final FluentBuilder sut = klass.syntax(String.format("(parameter%s)%s", key.substring(0, 1), key.substring(1)));
                 sut.optimize();
                 if (value.equals("+")) {
                     Assertions.assertEquals("parameter parameter*", sut.toString(), " for " + key);
@@ -145,8 +147,8 @@ public class TestSyntax {
             }
             complex:
             {
-                var klass = FluentBuilder.from(MyClass.class);
-                final var sut = klass.syntax(String.format("((parameter kw)%s)%s", key.substring(0, 1), key.substring(1)));
+                FluentBuilder klass = FluentBuilder.from(MyClass.class);
+                final FluentBuilder sut = klass.syntax(String.format("((parameter kw)%s)%s", key.substring(0, 1), key.substring(1)));
                 sut.optimize();
                 if (value.equals("+")) {
                     Assertions.assertEquals("parameter kw (parameter kw)*", sut.toString(), " for " + key);
@@ -156,6 +158,17 @@ public class TestSyntax {
             }
         }
 
+    }
+
+    private Map<String, String> mapFromStrings(String... params) {
+        if (params.length % 2 == 1) {
+            throw new IllegalArgumentException("Maps must have key-value pairs.");
+        }
+        Map<String, String> stringMap = new HashMap<>();
+        for (int i = 0; i < params.length; i += 2) {
+            stringMap.put(params[i], params[i+1]);
+        }
+        return stringMap;
     }
 
     /**

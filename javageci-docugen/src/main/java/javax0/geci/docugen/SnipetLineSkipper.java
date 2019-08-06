@@ -1,5 +1,7 @@
 package javax0.geci.docugen;
 
+import java.util.List;
+import java.util.regex.Matcher;
 import javax0.geci.annotations.Geci;
 import javax0.geci.api.CompoundParams;
 import javax0.geci.api.Segment;
@@ -111,8 +113,8 @@ public class SnipetLineSkipper extends AbstractSnippeter {
 
 
     private void removeSkippers(Snippet snippet) {
-        final var modifiedLines = new ArrayList<String>();
-        for (final var line : snippet.lines()) {
+        final List<String> modifiedLines = new ArrayList<String>();
+        for (final String line : snippet.lines()) {
             if (!config.skip.matcher(line).find()) {
                 modifiedLines.add(line);
             }
@@ -122,11 +124,11 @@ public class SnipetLineSkipper extends AbstractSnippeter {
     }
 
     private void skipLines(Snippet snippet) {
-        final var modifiedLines = new ArrayList<String>();
-        var skipping = false;
+        final List<String> modifiedLines = new ArrayList<String>();
+        boolean skipping = false;
         int skipCounter=0;
         Pattern skipPattern = null;
-        for (final var line : snippet.lines()) {
+        for (final String line : snippet.lines()) {
             if (skipping) {
                 if (skipCounter > 0) {
                     skipCounter--;
@@ -148,21 +150,21 @@ public class SnipetLineSkipper extends AbstractSnippeter {
                     continue;
                 }
             } else {
-                final var skipNrLinesMatcher = config.skipNrLines.matcher(line);
+                final Matcher skipNrLinesMatcher = config.skipNrLines.matcher(line);
                 if (skipNrLinesMatcher.find()) {
                     skipCounter = Integer.parseInt(skipNrLinesMatcher.group(1));
                     skipPattern = null;
                     skipping = true;
                     continue;
                 }
-                final var skipTillMatcher = config.skipTill.matcher(line);
+                final Matcher skipTillMatcher = config.skipTill.matcher(line);
                 if (skipTillMatcher.find()) {
                     skipPattern = Pattern.compile(skipTillMatcher.group(1));
                     skipCounter = 0;
                     skipping = true;
                     continue;
                 }
-                final var skipMatcher = config.skip.matcher(line);
+                final Matcher skipMatcher = config.skip.matcher(line);
                 if (skipMatcher.find()) {
                     skipPattern = null;
                     skipCounter = 0;

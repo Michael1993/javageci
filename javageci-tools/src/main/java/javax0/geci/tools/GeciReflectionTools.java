@@ -20,7 +20,7 @@ public class GeciReflectionTools {
     public static final int PACKAGE = 0x00010000;
     private static final Selector inheritedField = Selector.compile("!static & !private");
     private static final Selector inheritedFieldDifferentPackage = Selector.compile("!static & !private & !package");
-    private static final Map<String, Class<?>> PRIMITIVES = Map.of(
+    private static final Map<String, Class<?>> PRIMITIVES = GeciCompatibilityTools.createMap(
         "byte", byte.class,
         "char", char.class,
         "short", short.class,
@@ -29,7 +29,6 @@ public class GeciReflectionTools {
         "float", float.class,
         "double", double.class,
         "boolean", boolean.class);
-
 
     /**
      * Get the parameters from the {@code element} from the {@link Geci} annotation that stands for the
@@ -42,9 +41,9 @@ public class GeciReflectionTools {
      * generator mnemonic.
      */
     public static CompoundParams getParameters(AnnotatedElement element, String generatorMnemonic) {
-        final var strings = GeciAnnotationTools.getGecis(element);
-        for (var string : strings) {
-            var params = GeciAnnotationTools.getParameters(generatorMnemonic, string);
+        final String[] strings = GeciAnnotationTools.getGecis(element);
+        for (String string : strings) {
+            CompoundParams params = GeciAnnotationTools.getParameters(generatorMnemonic, string);
             if (params != null) {
                 return params;
             }
@@ -130,8 +129,8 @@ public class GeciReflectionTools {
      */
     public static String normalizeTypeName(String s, Class<?> klass) {
         s = normalizeTypeName(s);
-        if (s.startsWith(klass.getPackageName() + ".")) {
-            s = s.substring(klass.getPackageName().length() + 1);
+        if (s.startsWith(getPackageName(klass) + ".")) {
+            s = s.substring(getPackageName(klass).length() + 1);
         }
         return s;
     }
@@ -164,7 +163,7 @@ public class GeciReflectionTools {
         } else if (t instanceof WildcardType) {
             normalizedName = getGenericWildcardTypeName((WildcardType) t);
         } else if (t instanceof GenericArrayType) {
-            var at = (GenericArrayType) t;
+            GenericArrayType at = (GenericArrayType) t;
             normalizedName = getGenericTypeName(at.getGenericComponentType()) + "[]";
         } else if (t instanceof TypeVariable) {
             normalizedName = t.getTypeName();
@@ -221,12 +220,12 @@ public class GeciReflectionTools {
      */
     public static String getLocalGenericClassName(Class<?> t) {
         return normalizeTypeName(t.getCanonicalName()
-            .substring(t.getPackageName().length() + 1))
+            .substring(getPackageName(t).length() + 1))
             + getGenericParametersString(t);
     }
 
     private static String getGenericParametersString(Class<?> t) {
-        final var generics = Arrays.stream(t.getTypeParameters())
+        final String generics = Arrays.stream(t.getTypeParameters())
             .map(GeciReflectionTools::getGenericTypeName)
             .collect(Collectors.joining(","));
         if (generics.length() == 0) {
@@ -238,8 +237,8 @@ public class GeciReflectionTools {
 
     private static String getGenericWildcardTypeName(WildcardType t) {
         String normalizedName;
-        var ub = joinTypes(t.getUpperBounds());
-        var lb = joinTypes(t.getLowerBounds());
+        String ub = joinTypes(t.getUpperBounds());
+        String lb = joinTypes(t.getLowerBounds());
         normalizedName = "?" +
             (lb.length() > 0 && !lb.equals("Object") ? " super " + lb : "") +
             (ub.length() > 0 && !ub.equals("Object") ? " extends " + ub : "");
@@ -248,11 +247,11 @@ public class GeciReflectionTools {
 
     private static String getGenericParametrizedTypeName(ParameterizedType t) {
         String normalizedName;
-        var types = t.getActualTypeArguments();
+        Type[] types = t.getActualTypeArguments();
         if (!(t.getRawType() instanceof Class<?>)) {
             throw new GeciException("'getRawType()' returned something that is not a class : " + t.getClass().getTypeName());
         }
-        final var klass = (Class) t.getRawType();
+        final Class klass = (Class) t.getRawType();
         final String klassName = removeJavaLang(klass.getCanonicalName());
         if (types.length > 0) {
             normalizedName = klassName + "<" +
@@ -295,7 +294,7 @@ public class GeciReflectionTools {
      * @return the sorted array of fields
      */
     public static Field[] getDeclaredFieldsSorted(Class<?> klass) {
-        final var fields = klass.getDeclaredFields();
+        final Field[] fields = klass.getDeclaredFields();
         Arrays.sort(fields, Comparator.comparing(Field::getName));
         return fields;
     }
@@ -308,15 +307,15 @@ public class GeciReflectionTools {
      * @return the sorted array of fields
      */
     public static Field[] getAllFieldsSorted(Class<?> klass) {
-        Set<Field> fields = new HashSet<>(List.of(klass.getDeclaredFields()));
-        var superClass = klass.getSuperclass();
-        var samePackage = klass.getPackage() == superClass.getPackage();
+        Set<Field> fields = new HashSet<>(Arrays.asList(klass.getDeclaredFields()));
+        Class<?> superClass = klass.getSuperclass();
+        boolean samePackage = klass.getPackage() == superClass.getPackage();
         while (superClass != null) {
             collectFields(samePackage, superClass, fields);
             superClass = superClass.getSuperclass();
             samePackage = samePackage && klass.getPackage() == superClass.getPackage();
         }
-        final var allFields = fields.toArray(new Field[0]);
+        final Field[] allFields = fields.toArray(new Field[0]);
         Arrays.sort(allFields, Comparator.comparing(Field::getName));
         return allFields;
     }
@@ -330,9 +329,9 @@ public class GeciReflectionTools {
      * @param fields        the collection of the fields where to put the fields
      */
     private static void collectFields(boolean isSamePackage, Class<?> actualClass, Set<Field> fields) {
-        final var declaredFields = actualClass.getDeclaredFields();
-        final var selector = isSamePackage ? inheritedField : inheritedFieldDifferentPackage;
-        for (final var field : declaredFields) {
+        final Field[] declaredFields = actualClass.getDeclaredFields();
+        final Selector selector = isSamePackage ? inheritedField : inheritedFieldDifferentPackage;
+        for (final Field field : declaredFields) {
             if (selector.match(field)) {
                 fields.add(field);
             }
@@ -351,7 +350,7 @@ public class GeciReflectionTools {
      * @return the sorted array of the methods
      */
     public static Method[] getDeclaredMethodsSorted(Class<?> klass) {
-        final var methods = klass.getDeclaredMethods();
+        final Method[] methods = klass.getDeclaredMethods();
         Arrays.sort(methods, Comparator.comparing(MethodTool::methodSignature));
         return methods;
     }
@@ -366,7 +365,7 @@ public class GeciReflectionTools {
      * @return the array of the methods of the class
      */
     public static Method[] getMethodsSorted(Class<?> klass) {
-        final var methods = klass.getMethods();
+        final Method[] methods = klass.getMethods();
         Arrays.sort(methods, Comparator.comparing(MethodTool::methodSignature));
         return methods;
     }
@@ -381,18 +380,18 @@ public class GeciReflectionTools {
      * @return the array of the methods of the class
      */
     public static Method[] getAllMethodsSorted(final Class<?> klass) {
-        final var allMethods = new ArrayList<Method>();
-        var samePackage = true;
-        for (var currentClass = klass; currentClass != null; currentClass = currentClass.getSuperclass()) {
+        final List<Method> allMethods = new ArrayList<Method>();
+        boolean samePackage = true;
+        for (Class<?> currentClass = klass; currentClass != null; currentClass = currentClass.getSuperclass()) {
             samePackage =  samePackage && klass.getPackage() == currentClass.getPackage() ;
-            for (final var currentMethod : currentClass.getDeclaredMethods()) {
+            for (final Method currentMethod : currentClass.getDeclaredMethods()) {
                 if (klass == currentClass) {
                     allMethods.add(currentMethod);
                 } else {
-                    final var modifier = currentMethod.getModifiers();
+                    final int modifier = currentMethod.getModifiers();
                     if (isProtected(modifier) || isPublic(modifier) ||
                         (samePackage && !isPublic(modifier) && ! isProtected(modifier) && !isPrivate(modifier))) {
-                        final var overridden = new AtomicBoolean(false);
+                        final AtomicBoolean overridden = new AtomicBoolean(false);
                         for (Method collectedMethod : allMethods) {
                             if (collectedMethod.getName().equals(currentMethod.getName())
                                 && Arrays.deepEquals(currentMethod.getParameterTypes(), collectedMethod
@@ -425,9 +424,9 @@ public class GeciReflectionTools {
      * different JVMs.
      */
     public static Class[] getAllClassesSorted(Class<?> klass) {
-        final var classes = Arrays.stream(klass.getClasses()).collect(Collectors.toSet());
-        final var declaredClasses = Arrays.stream(klass.getDeclaredClasses()).collect(Collectors.toSet());
-        final var allClasses = new HashSet<Class<?>>();
+        final Set<Class<?>> classes = Arrays.stream(klass.getClasses()).collect(Collectors.toSet());
+        final Set<Class<?>> declaredClasses = Arrays.stream(klass.getDeclaredClasses()).collect(Collectors.toSet());
+        final Set<Class<?>> allClasses = new HashSet<>();
         allClasses.addAll(classes);
         allClasses.addAll(declaredClasses);
         final Class[] classArray = allClasses.toArray(new Class[0]);
@@ -445,7 +444,7 @@ public class GeciReflectionTools {
      * @return the sorted array of the classes
      */
     public static Class[] getDeclaredClassesSorted(Class<?> klass) {
-        final var classes = klass.getDeclaredClasses();
+        final Class<?>[] classes = klass.getDeclaredClasses();
         Arrays.sort(classes, Comparator.comparing(Class::getName));
         return classes;
     }
@@ -460,7 +459,7 @@ public class GeciReflectionTools {
      * @return the array of the classes of the class
      */
     public static Class[] getClassesSorted(Class<?> klass) {
-        final var classes = klass.getClasses();
+        final Class<?>[] classes = klass.getClasses();
         Arrays.sort(classes, Comparator.comparing(Class::getName));
         return classes;
     }
@@ -507,12 +506,12 @@ public class GeciReflectionTools {
      * @throws ClassNotFoundException if the class cannot be found
      */
     public static Class<?> classForName(String className) throws ClassNotFoundException {
-        var arrayCounter = 0;
+        int arrayCounter = 0;
         while (className.endsWith("[]")) {
             className = className.substring(0, className.length() - 2);
             arrayCounter++;
         }
-        var klass = classForNoArray(className);
+        Class<?> klass = classForNoArray(className);
         while (arrayCounter-- > 0) {
             klass = Array.newInstance(klass, 0).getClass();
         }
@@ -559,8 +558,8 @@ public class GeciReflectionTools {
         if (masks == null) {
             return dfault;
         } else {
-            for (var maskString : masks.split(",", -1)) {
-                var maskTrimmed = maskString.trim();
+            for (String maskString : masks.split(",", -1)) {
+                String maskTrimmed = maskString.trim();
                 switch (maskTrimmed) {
 
                     case "private":
@@ -606,4 +605,11 @@ public class GeciReflectionTools {
             return modMask;
         }
     }
+
+    public static String getPackageName(Class<?> klass) {
+        String canonicalName = klass.getCanonicalName();
+        String simpleName = klass.getSimpleName();
+        return canonicalName.substring(0, canonicalName.indexOf(simpleName) - 1);
+    }
+
 }

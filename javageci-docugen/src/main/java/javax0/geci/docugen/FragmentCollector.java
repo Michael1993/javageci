@@ -1,5 +1,6 @@
 package javax0.geci.docugen;
 
+import java.util.regex.Matcher;
 import javax0.geci.annotations.Geci;
 import javax0.geci.api.*;
 
@@ -24,15 +25,15 @@ public class FragmentCollector extends AbstractSnippeter implements Distant {
 
     @Override
     public void processEx(Source source) throws Exception {
-        final var absFileName = source.getAbsoluteFile();
-        final var fileName = absFileName.substring(absFileName.lastIndexOf('/') + 1);
-        final var dot = fileName.lastIndexOf('.');
-        final var className = dot > -1 ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
-        var snippetSubName = "";
-        var snippetCounter = 1;
+        final String absFileName = source.getAbsoluteFile();
+        final String fileName = absFileName.substring(absFileName.lastIndexOf('/') + 1);
+        final int dot = fileName.lastIndexOf('.');
+        final String className = dot > -1 ? fileName.substring(0, fileName.lastIndexOf('.')) : fileName;
+        String snippetSubName = "";
+        int snippetCounter = 1;
         SnippetBuilder builder = null;
-        for (final var line : source.getLines()) {
-            final var starter = config.snippetStart.matcher(line);
+        for (final String line : source.getLines()) {
+            final Matcher starter = config.snippetStart.matcher(line);
             if (builder == null && starter.find()) {
                 if (starter.group(1) != null ) {
                     snippetSubName = starter.group(1);
@@ -40,13 +41,13 @@ public class FragmentCollector extends AbstractSnippeter implements Distant {
                 }
                 builder = new SnippetBuilder(String.format("%s_%s_%06d",className,snippetSubName,snippetCounter++));
             } else if (builder != null) {
-                final var stopper = config.snippetEnd.matcher(line);
+                final Matcher stopper = config.snippetEnd.matcher(line);
                 // skip
                 if (stopper.find()) {
                     snippets.put(builder.snippetName(), builder.build(), source);
                     builder = null;
                 } else {
-                    final var convertedLine = config.transform.apply(line);
+                    final String convertedLine = config.transform.apply(line);
                     builder.add(convertedLine);
                 }
                 // skip end

@@ -22,9 +22,9 @@ class SelectorCompiler {
     private Lexer lexer;
 
     static SelectorNode compile(String expression) {
-        final var it = new SelectorCompiler();
+        final SelectorCompiler it = new SelectorCompiler();
         it.lexer = new Lexer(expression, true);
-        final var topNode = it.expression();
+        final SelectorNode topNode = it.expression();
         if (it.lexer.rest().length() > 0) {
             throw new IllegalArgumentException("There are extra characters " +
                 "at the end of the selector expresison" + it.atRest());
@@ -33,7 +33,7 @@ class SelectorCompiler {
     }
 
     private String atRest() {
-        var rest = lexer.rest();
+        String rest = lexer.rest();
         if (rest.length() > 8) {
             rest = rest.substring(0, 8) + "...";
         }
@@ -49,9 +49,9 @@ class SelectorCompiler {
     }
 
     private SelectorNode expression() {
-        final var topNode = expression1();
+        final SelectorNode topNode = expression1();
         if (isSymbol("|")) {
-            final var orNode = new SelectorNode.Or();
+            final SelectorNode.Or orNode = new SelectorNode.Or();
             orNode.subNodes.add(topNode);
             while (isSymbol("|")) {
                 lexer.get();
@@ -64,9 +64,9 @@ class SelectorCompiler {
     }
 
     private SelectorNode expression1() {
-        final var topNode = expression2();
+        final SelectorNode topNode = expression2();
         if (isSymbol("&")) {
-            final var andNode = new SelectorNode.And();
+            final SelectorNode.And andNode = new SelectorNode.And();
             andNode.subNodes.add(topNode);
             while (isSymbol("&")) {
                 lexer.get();
@@ -85,7 +85,7 @@ class SelectorCompiler {
         }
         if (isSymbol("(")) {
             lexer.get();
-            final var sub = expression();
+            final SelectorNode sub = expression();
             if (isSymbol(")")) {
                 lexer.get();
                 return sub;
@@ -94,13 +94,13 @@ class SelectorCompiler {
             }
         }
         if (lexer.peek().type == Lexeme.Type.WORD) {
-            final var name = lexer.get().string;
+            final String name = lexer.get().string;
             if (isSymbol("~")) {
                 lexer.get();
                 if (lexer.peek().type != Lexeme.Type.REGEX) {
                     throw new IllegalArgumentException("Regex is missing after '~'" + atRest());
                 }
-                final var regex = lexer.get();
+                final Lexeme regex = lexer.get();
                 return new SelectorNode.Regex(regex.string, name);
             } else {
                 return new SelectorNode.Terminal(name);

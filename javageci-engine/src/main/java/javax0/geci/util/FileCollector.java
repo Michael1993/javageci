@@ -1,6 +1,9 @@
 package javax0.geci.util;
 
 
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax0.geci.api.DirectoryLocator;
 import javax0.geci.api.GeciException;
 import javax0.geci.api.SegmentSplitHelper;
@@ -51,9 +54,9 @@ public class FileCollector {
      * @return the file directory name
      */
     public static String normalize(String s) {
-        final var unixStyle = s.replace("\\", "/")
+        final String unixStyle = s.replace("\\", "/")
             .replace("/./", "/");
-        final var pathElements = new ArrayList<>(Arrays.asList(unixStyle.split("/", -1)));
+        final List<String> pathElements = new ArrayList<>(Arrays.asList(unixStyle.split("/", -1)));
         boolean changed;
         do {
             changed = false;
@@ -66,7 +69,7 @@ public class FileCollector {
                 }
             }
         } while (changed);
-        return String.join("/",pathElements);
+        return String.join("/", pathElements);
     }
 
     /**
@@ -162,12 +165,12 @@ public class FileCollector {
      * @return the helper object
      */
     public SegmentSplitHelper getSegmentSplitHelper(Source source) {
-        final var absFn = source.getAbsoluteFile();
-        final var extStartPos = absFn.lastIndexOf('.');
+        final String absFn = source.getAbsoluteFile();
+        final int extStartPos = absFn.lastIndexOf('.');
         if (extStartPos == -1) {
             return nullSegmentSplitHelper;
         }
-        final var ext = absFn.substring(extStartPos + 1);
+        final String ext = absFn.substring(extStartPos + 1);
         if (splitHelpers.containsKey(ext)) {
             return splitHelpers.get(ext);
         } else if ("java".equals(ext)) {
@@ -200,13 +203,13 @@ public class FileCollector {
      *                directory.
      */
     public void collect(Set<Predicate<Path>> onlys, Set<Predicate<Path>> ignores, Set<Source.Set> outputSets) {
-        var processedSome = new AtomicBoolean(false);
-        for (var entry : directories.entrySet()) {
-            var processed = new AtomicBoolean(false);
-            final var locator = entry.getValue();
-            locator.alternatives().takeWhile(x -> !processed.get())
+        AtomicBoolean processedSome = new AtomicBoolean(false);
+        for (Map.Entry<Source.Set, javax0.geci.api.DirectoryLocator> entry : directories.entrySet()) {
+            AtomicBoolean processed = new AtomicBoolean(false);
+            final DirectoryLocator locator = entry.getValue();
+            takeWhile(locator.alternatives(), x -> !processed.get())
                     .forEach(directory -> {
-                        var dir = normalized(directory);
+                        String dir = normalized(directory);
                         try {
                             if (locator.test(dir)) {
                                 if (!outputSets.contains(entry.getKey())) {
@@ -263,5 +266,28 @@ public class FileCollector {
      */
     public void addNewSource(Source source) {
         newSources.add(source);
+    }
+
+    private <T> Spliterator<T> takeWhile(Spliterator<T> splitr, Predicate<T> predicate) {
+        return new Spliterators.AbstractSpliterator<T>(splitr.estimateSize(), 0) {
+            boolean stillGoing = true;
+            @Override public boolean tryAdvance(Consumer<? super T> action) {
+                if (stillGoing) {
+                    boolean hasNext = splitr.tryAdvance(element -> {
+                        if(predicate.test(element)) {
+                            action.accept(element);
+                        } else {
+                            stillGoing = false;
+                        }
+                    });
+                    return hasNext && stillGoing;
+                }
+                return false;
+            }
+        };
+    }
+
+    private <T> Stream<T> takeWhile(Stream<T> stream, Predicate<T> predicate) {
+        return StreamSupport.stream(takeWhile(stream.spliterator(), predicate), false);
     }
 }

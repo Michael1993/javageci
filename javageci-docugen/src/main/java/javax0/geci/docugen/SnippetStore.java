@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax0.geci.tools.GeciCompatibilityTools;
 
 class SnippetStore {
     final Map<String, Snippet> originals = new HashMap<>();
@@ -17,7 +18,7 @@ class SnippetStore {
     private static final String EPSILON = "epsilon";
 
     SnippetStore() {
-        originals.put(EPSILON, new Snippet(EPSILON, new CompoundParams(EPSILON, Map.of()), List.of()));
+        originals.put(EPSILON, new Snippet(EPSILON, new CompoundParams(EPSILON, GeciCompatibilityTools.createMap()), GeciCompatibilityTools.createList()));
     }
 
     //snippet SnippetStore_name
@@ -54,7 +55,7 @@ class SnippetStore {
         if (!locals.containsKey(snippetName)) {
             locals.put(snippetName, new HashMap<>());
         }
-        final var local = locals.get(snippetName);
+        final Map<String, Snippet> local = locals.get(snippetName);
         if (!local.containsKey(segmentName)) {
             local.put(segmentName, originals.get(snippetName).copy());
         }

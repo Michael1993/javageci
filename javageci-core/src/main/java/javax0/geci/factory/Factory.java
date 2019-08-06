@@ -24,8 +24,8 @@ public class Factory extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void preprocess(Source source, Class<?> klass, CompoundParams global, Segment segment) {
-        final var bn = global.get("builderName", builderName);
-        final var bfm = global.get("builderFactoryMethod", builderFactoryMethod);
+        final String bn = global.get("builderName", builderName);
+        final String bfm = global.get("builderFactoryMethod", builderFactoryMethod);
         writeGenerated(segment, generatedAnnotation);
         segment.write_r("public static %s.%s %s() {", klass.getSimpleName(), bn, bfm)
             .write("return new %s().new %s();", klass.getSimpleName(), bn)
@@ -36,9 +36,9 @@ public class Factory extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void process(Source source, Class<?> klass, CompoundParams params, Field field, Segment segment) throws Exception {
-        final var bn = params.get("builderName", builderName);
-        final var name = field.getName();
-        final var type = GeciReflectionTools.normalizeTypeName(field.getType().getName());
+        final String bn = params.get("builderName", builderName);
+        final String name = field.getName();
+        final String type = GeciReflectionTools.normalizeTypeName(field.getType().getName());
         writeGenerated(segment, generatedAnnotation);
         segment.write_r("public %s %s(%s %s){", bn, name, type, name)
             .write("%s.this.%s = %s;", klass.getSimpleName(), name, name)
@@ -49,7 +49,7 @@ public class Factory extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void postprocess(Source source, Class<?> klass, CompoundParams global, Segment segment) {
-        final var bm = global.get("buildMethod", buildMethod);
+        final String bm = global.get("buildMethod", buildMethod);
         writeGenerated(segment, generatedAnnotation);
         segment.write_r("public %s %s() {", klass.getSimpleName(), bm)
             .write("return %s.this;", klass.getSimpleName())
@@ -88,7 +88,7 @@ public class Factory extends AbstractFilteredFieldsGenerator {
             return this;
         }
 
-        public BuilderBuilder generatedAnnotation(Class generatedAnnotation) {
+        public BuilderBuilder generatedAnnotation(Class<? extends Annotation> generatedAnnotation) {
             Factory.this.generatedAnnotation = generatedAnnotation;
             return this;
         }

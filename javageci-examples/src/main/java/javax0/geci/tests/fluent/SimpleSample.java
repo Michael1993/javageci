@@ -44,7 +44,7 @@ public class SimpleSample {
             this.that = new javax0.geci.tests.fluent.SimpleSample();
         }
         public Wrapper b(String arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.b(arg1);
             return next;
         }
@@ -52,7 +52,7 @@ public class SimpleSample {
             return that.got();
         }
         public Wrapper c(String arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.c(arg1);
             return next;
         }
@@ -60,12 +60,12 @@ public class SimpleSample {
             return that.get();
         }
         public Wrapper a(String arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.a(arg1);
             return next;
         }
         public Wrapper d(String arg1){
-            var next = new Wrapper(that.copy());
+            Wrapper next = new Wrapper(that.copy());
             next.that.d(arg1);
             return next;
         }

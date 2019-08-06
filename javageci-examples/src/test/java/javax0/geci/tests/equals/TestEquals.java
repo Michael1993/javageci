@@ -11,7 +11,7 @@ public class TestEquals {
 
     @Test
     public void testEquals() throws Exception {
-        final var geci = new Geci();
+        final Geci geci = new Geci();
         Assertions.assertFalse(
                 geci.source(
                         maven()

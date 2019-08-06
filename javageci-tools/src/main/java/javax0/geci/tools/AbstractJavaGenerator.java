@@ -104,15 +104,15 @@ public abstract class AbstractJavaGenerator extends AbstractGeneratorEx {
     }
 
     public final void processEx(Source source) throws Exception {
-        final var klass = source.getKlass();
+        final Class<?> klass = source.getKlass();
         if (klass != null) {
             if (phase == 0) {
                 classes.add(klass);
             }
-            var annotationParams = Optional.ofNullable(GeciReflectionTools.getParameters(klass, mnemonic())).orElseGet(() ->
+            CompoundParams annotationParams = Optional.ofNullable(GeciReflectionTools.getParameters(klass, mnemonic())).orElseGet(() ->
                 GeciAnnotationTools.getParameters(source, mnemonic(), "//", CLASS_LINE));
-            var editorFoldParams = GeciAnnotationTools.getSegmentParameters(source, mnemonic());
-            var global = new CompoundParams(annotationParams, editorFoldParams);
+            CompoundParams editorFoldParams = GeciAnnotationTools.getSegmentParameters(source, mnemonic());
+            CompoundParams global = new CompoundParams(annotationParams, editorFoldParams);
             global.setConstraints(source, mnemonic(), implementedKeys());
             if (annotationParams != null || processAllClasses() ) {
                 source.allowDefaultSegment();

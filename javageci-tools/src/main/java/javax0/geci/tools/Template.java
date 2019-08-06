@@ -20,9 +20,9 @@ public class Template {
         while ((start = sb.indexOf("{{", position)) >= 0) {
             int end = sb.indexOf("}}",start);
             if( end > 0 ) {
-                final var key = sb.substring(start + 2, end);
+                final String key = sb.substring(start + 2, end);
                 if( params.containsKey(key) && params.get(key) != null ){
-                    final var value = params.get(key);
+                    final String value = params.get(key);
                     sb.replace(start,end+2,value);
                     position = start + value.length();
                 }else{

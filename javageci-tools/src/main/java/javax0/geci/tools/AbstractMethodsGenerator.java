@@ -31,9 +31,9 @@ public abstract class AbstractMethodsGenerator extends AbstractJavaGenerator {
     @Override
     public final void process(Source source, Class<?> klass, CompoundParams global) throws Exception {
         preprocessHook(source, klass, global);
-        final var methods = declaredOnly ? GeciReflectionTools.getDeclaredMethodsSorted(klass) : GeciReflectionTools.getAllMethodsSorted(klass);
-        for (final var method : methods) {
-            var params = GeciReflectionTools.getParameters(method, mnemonic());
+        final Method[] methods = declaredOnly ? GeciReflectionTools.getDeclaredMethodsSorted(klass) : GeciReflectionTools.getAllMethodsSorted(klass);
+        for (final Method method : methods) {
+            CompoundParams params = GeciReflectionTools.getParameters(method, mnemonic());
             processMethodHook(source, klass, new CompoundParams(params, global), method);
         }
         processMethodHook(source, klass, global, methods);
@@ -53,7 +53,7 @@ public abstract class AbstractMethodsGenerator extends AbstractJavaGenerator {
      */
     @SuppressWarnings("unused")
     public void preprocess(Source source, Class<?> klass, CompoundParams global) throws Exception {
-        try (final var segment = source.safeOpen(global.id(mnemonic()))) {
+        try (final Segment segment = source.safeOpen(global.id(mnemonic()))) {
             preprocess(source, klass, global, segment);
         }
     }
@@ -164,7 +164,7 @@ public abstract class AbstractMethodsGenerator extends AbstractJavaGenerator {
      * @throws Exception any exception that the is thrown by the generator
      */
     public void process(Source source, Class<?> klass, CompoundParams params, Method method) throws Exception {
-        try (final var segment = source.safeOpen(params.id(mnemonic()))) {
+        try (final Segment segment = source.safeOpen(params.id(mnemonic()))) {
             process(source, klass, params, method, segment);
         }
     }
@@ -200,7 +200,7 @@ public abstract class AbstractMethodsGenerator extends AbstractJavaGenerator {
      * @throws Exception any exception that the is thrown by the generator
      */
     public void process(Source source, Class<?> klass, CompoundParams global, Method[] methods) throws Exception {
-        try (final var segment = source.safeOpen(global.id(mnemonic()))) {
+        try (final Segment segment = source.safeOpen(global.id(mnemonic()))) {
             process(source, klass, global, methods, segment);
         }
     }

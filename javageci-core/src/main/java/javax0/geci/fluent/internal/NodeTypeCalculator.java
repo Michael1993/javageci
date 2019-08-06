@@ -1,5 +1,7 @@
 package javax0.geci.fluent.internal;
 
+import java.util.List;
+import java.util.Set;
 import javax0.geci.api.GeciException;
 import javax0.geci.fluent.tree.Node;
 import javax0.geci.fluent.tree.Terminal;
@@ -78,14 +80,14 @@ public class NodeTypeCalculator {
      */
     private String getReturnType(Tree lastNode) {
         if (lastNode.getModifier() == Node.ONCE) {
-            var list = lastNode.getList();
+            List<Node> list = lastNode.getList();
             return getReturnType(list.get(list.size() - 1));
         }
         if (lastNode.getModifier() == Node.ONE_OF || lastNode.getModifier() == Node.ONE_TERMINAL_OF) {
-            var returnTypes = new HashSet<String>();
-            var returnType = "";
-            var list = lastNode.getList();
-            for (var node : list) {
+            Set<String> returnTypes = new HashSet<String>();
+            String returnType = "";
+            List<Node> list = lastNode.getList();
+            for (Node node : list) {
                 returnType = getReturnType(node);
                 returnTypes.add(returnType);
             }

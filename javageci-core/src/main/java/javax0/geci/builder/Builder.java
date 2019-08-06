@@ -6,6 +6,7 @@ import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractFilteredFieldsGenerator;
 import javax0.geci.tools.CaseTools;
 import javax0.geci.tools.CompoundParams;
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.GeciReflectionTools;
 
 import java.lang.annotation.Annotation;
@@ -33,7 +34,7 @@ public class Builder extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void preprocess(Source source, Class<?> klass, CompoundParams global, Segment segment) {
-        final var local = localConfig(global);
+        final Config local = localConfig(global);
         writeGenerated(segment, config.generatedAnnotation);
         segment.write_r("public static %s.%s %s() {", klass.getSimpleName(), local.builderName, local.builderFactoryMethod)
                 .write("return new %s().new %s();", klass.getSimpleName(), local.builderName)
@@ -44,9 +45,9 @@ public class Builder extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void process(Source source, Class<?> klass, CompoundParams params, Field field, Segment segment) {
-        final var local = localConfig(params);
-        final var name = field.getName();
-        final var type = GeciReflectionTools.normalizeTypeName(field.getType().getName(), klass);
+        final Config local = localConfig(params);
+        final String name = field.getName();
+        final String type = GeciReflectionTools.normalizeTypeName(field.getType().getName(), klass);
         if (!Modifier.isFinal(field.getModifiers())) {
             generateSetter(klass, segment, local.builderName, name, type);
         }
@@ -57,13 +58,13 @@ public class Builder extends AbstractFilteredFieldsGenerator {
     }
 
     private void generateAggregators(Class<?> klass, Segment segment, String builder, String name, Field field) {
-        final var aggMethod = config.aggregatorMethod + CaseTools.ucase(name);
+        final String aggMethod = config.aggregatorMethod + CaseTools.ucase(name);
         Arrays.stream(GeciReflectionTools.getDeclaredMethodsSorted(field.getType()))
                 .filter(m -> m.getName().equals(config.aggregatorMethod))
                 .filter(m -> m.getParameterTypes().length == 1)
                 .forEach(
                         method -> {
-                            var type = method.getParameterTypes()[0];
+                            Class<?> type = method.getParameterTypes()[0];
                             final String typeName;
                             Type genType;
                             Type[] parTypes;
@@ -101,7 +102,7 @@ public class Builder extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void postprocess(Source source, Class<?> klass, CompoundParams global, Segment segment) {
-        final var local = localConfig(global);
+        final Config local = localConfig(global);
         writeGenerated(segment, config.generatedAnnotation);
         segment.write_r("public %s %s() {", klass.getSimpleName(), local.buildMethod)
                 .write("return %s.this;", klass.getSimpleName())
@@ -120,7 +121,7 @@ public class Builder extends AbstractFilteredFieldsGenerator {
         return new Builder().new ConfBuilder();
     }
 
-    private static final java.util.Set<String> implementedKeys = java.util.Set.of(
+    private static final java.util.Set<String> implementedKeys = GeciCompatibilityTools.createSet(
         "aggregatorMethod",
         "buildMethod",
         "builderFactoryMethod",
@@ -169,7 +170,7 @@ public class Builder extends AbstractFilteredFieldsGenerator {
         }
     }
     private Config localConfig(CompoundParams params){
-        final var local = new Config();
+        final Config local = new Config();
         local.aggregatorMethod = params.get("aggregatorMethod",config.aggregatorMethod);
         local.buildMethod = params.get("buildMethod",config.buildMethod);
         local.builderFactoryMethod = params.get("builderFactoryMethod",config.builderFactoryMethod);

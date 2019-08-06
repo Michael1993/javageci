@@ -6,7 +6,7 @@ public class IdentifierLiteral implements LexEater {
         if (sb.length() == 0 || !Character.isJavaIdentifierStart(sb.charAt(0))) {
             return null;
         }
-        final var output = new StringBuilder();
+        final StringBuilder output = new StringBuilder();
         while (sb.length() > 0 && Character.isJavaIdentifierPart(sb.charAt(0))) {
             output.append(sb.charAt(0));
             sb.deleteCharAt(0);

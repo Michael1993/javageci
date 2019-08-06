@@ -5,6 +5,7 @@ import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractFilteredFieldsGenerator;
 import javax0.geci.tools.CompoundParams;
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.GeciReflectionTools;
 import javax0.geci.tools.reflection.Selector;
 import javax0.geci.tools.GeciAnnotationTools;
@@ -80,16 +81,16 @@ public class Equals extends AbstractFilteredFieldsGenerator {
             generateEqualsForField(equalsSegment, lastParams, lastField, this::retLast);
         }
         generateEqualsTail(equalsSegment);
-        var segment = source.open(global.id());
+        Segment segment = source.open(global.id());
         if (generateEquals) {
             segment.write(equalsSegment);
         }
     }
 
     private void generateEqualsHeader(Segment segment, Class<?> klass, CompoundParams global) {
-        var equalsMethod = getMethodOrNull(klass, "equals", Object.class);
-        var subclassingAllowed = global.is("subclass", config.subclass);
-        var usingSuper = global.is("useSuper", config.useSuper);
+        Method equalsMethod = getMethodOrNull(klass, "equals", Object.class);
+        boolean subclassingAllowed = global.is("subclass", config.subclass);
+        boolean usingSuper = global.is("useSuper", config.useSuper);
         generateEquals = equalsMethod == null || GeciAnnotationTools.isGenerated(equalsMethod);
         writeGenerated(segment, config.generatedAnnotation);
         segment.write("@Override")
@@ -123,8 +124,8 @@ public class Equals extends AbstractFilteredFieldsGenerator {
     }
 
     private void generateEqualsForField(Segment segment, CompoundParams params, Field field, Function<String, String> convert) {
-        var primitive = field.getType().isPrimitive();
-        var name = field.getName();
+        boolean primitive = field.getType().isPrimitive();
+        String name = field.getName();
         if (primitive) {
             if (field.getType().equals(float.class)) {
                 segment.write(convert.apply("Float.compare(that." + name + ", " + name + ") == 0"));
@@ -170,7 +171,7 @@ public class Equals extends AbstractFilteredFieldsGenerator {
      * @return the code that handles the condition
      */
     private String retLast(String condition) {
-        final var modCondition = condition.replace("!!", "");
+        final String modCondition = condition.replace("!!", "");
         return "return " + modCondition + ";";
     }
 
@@ -227,21 +228,21 @@ public class Equals extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void process(Source source, Class<?> klass, CompoundParams global, Field[] fields) throws Exception {
-        final var gid = global.get("id");
-        var segment = source.open(gid);
-        var hashCodeMethod = getMethodOrNull(klass, "hashCode");
-        var generateHashCode = hashCodeMethod == null || GeciAnnotationTools.isGenerated(hashCodeMethod);
+        final String gid = global.get("id");
+        Segment segment = source.open(gid);
+        Method hashCodeMethod = getMethodOrNull(klass, "hashCode");
+        boolean generateHashCode = hashCodeMethod == null || GeciAnnotationTools.isGenerated(hashCodeMethod);
         if (generateHashCode) {
             writeGenerated(segment, config.generatedAnnotation);
             segment.write("@Override");
             segment.write_r("public int hashCode() {");
-            final var hashFields = Arrays.stream(fields).filter(field -> {
-                        final var params = new CompoundParams(GeciReflectionTools.getParameters(field, mnemonic()), global);
-                        final var hashFilter = params.get("hashFilter", params.get("filter", config.hashFilter));
+            final Field[] hashFields = Arrays.stream(fields).filter(field -> {
+                        final CompoundParams params = new CompoundParams(GeciReflectionTools.getParameters(field, mnemonic()), global);
+                        final String hashFilter = params.get("hashFilter", params.get("filter", config.hashFilter));
                         return Selector.compile(hashFilter).match(field);
                     }
             ).toArray(Field[]::new);
-            var usingSuper = shouldUseSuper(klass, global);
+            boolean usingSuper = shouldUseSuper(klass, global);
             if (global.is("useObjects", config.useObjects)) {
                 generateHashCodeBodyUsingObjects(segment, hashFields, usingSuper);
             } else {
@@ -261,11 +262,11 @@ public class Equals extends AbstractFilteredFieldsGenerator {
             segment.write("long temp;");
         }
         segment.newline();
-        for (final var field : fields) {
-            var local = GeciReflectionTools.getParameters(field, mnemonic());
-            var params = new CompoundParams(local, global);
-            var primitive = field.getType().isPrimitive();
-            final var name = field.getName();
+        for (final Field field : fields) {
+            CompoundParams local = GeciReflectionTools.getParameters(field, mnemonic());
+            CompoundParams params = new CompoundParams(local, global);
+            boolean primitive = field.getType().isPrimitive();
+            final String name = field.getName();
             if (primitive) {
                 if (field.getType().equals(boolean.class)) {
                     segment.write("result = 31 * result + (%s ? 1 : 0);", name);
@@ -293,11 +294,11 @@ public class Equals extends AbstractFilteredFieldsGenerator {
     }
 
     private boolean shouldUseSuper(Class<?> klass, CompoundParams global) {
-        var usingSuper = global.is("useSuper", config.useSuper);
+        boolean usingSuper = global.is("useSuper", config.useSuper);
         if(usingSuper) {
             try {
-                var superWithHash = GeciReflectionTools.getMethod(klass.getSuperclass(), "hashCode").getDeclaringClass();
-                var superWithEquals = GeciReflectionTools.getMethod(klass.getSuperclass(), "equals", Object.class).getDeclaringClass();
+                Class<?> superWithHash = GeciReflectionTools.getMethod(klass.getSuperclass(), "hashCode").getDeclaringClass();
+                Class<?> superWithEquals = GeciReflectionTools.getMethod(klass.getSuperclass(), "equals", Object.class).getDeclaringClass();
                 return superWithEquals == superWithHash && superWithEquals != Object.class;
             } catch (NoSuchMethodException ignored) {
             }
@@ -310,7 +311,7 @@ public class Equals extends AbstractFilteredFieldsGenerator {
     }
 
     private void generateHashCodeBodyUsingObjects(Segment segment, Field[] fields, boolean usingSuper) {
-        var andSuperHash = usingSuper ? ", super.hashCode()" : "";
+        String andSuperHash = usingSuper ? ", super.hashCode()" : "";
         segment.write("return java.util.Objects.hash(%s" + andSuperHash + ");",
                 Arrays.stream(fields).map(Field::getName).collect(Collectors.joining(", ")));
     }
@@ -326,7 +327,7 @@ public class Equals extends AbstractFilteredFieldsGenerator {
         return new Equals().new Builder();
     }
 
-    private static final java.util.Set<String> implementedKeys = java.util.Set.of(
+    private static final java.util.Set<String> implementedKeys = GeciCompatibilityTools.createSet(
         "filter",
         "hashFilter",
         "notNull",
@@ -381,7 +382,7 @@ public class Equals extends AbstractFilteredFieldsGenerator {
         }
     }
     private Config localConfig(CompoundParams params){
-        final var local = new Config();
+        final Config local = new Config();
         local.filter = params.get("filter",config.filter);
         local.generatedAnnotation = config.generatedAnnotation;
         local.hashFilter = params.get("hashFilter",config.hashFilter);

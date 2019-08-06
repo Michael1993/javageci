@@ -11,7 +11,7 @@ public class TestCommentLiteral {
 
     @Test
     void testGoodComments() {
-        final var sut = new CommentLiteral();
+        final CommentLiteral sut = new CommentLiteral();
         StringBuilder sb;
         sb = comment("/* vouw */");
         Assertions.assertEquals(LexicalElement.IGNORED,sut.apply(sb));

@@ -1,11 +1,13 @@
 package javax0.geci.config;
 
+import javax0.geci.api.Geci;
 import javax0.geci.api.GeciException;
 import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractJavaGenerator;
 import javax0.geci.tools.CaseTools;
 import javax0.geci.tools.CompoundParams;
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.GeciReflectionTools;
 import javax0.geci.tools.reflection.Selector;
 
@@ -42,11 +44,11 @@ public class ConfigBuilder extends AbstractJavaGenerator {
         } catch (ClassNotFoundException cnfe) {
             throw new GeciException("There is no class 'Config' in " + klass.getName(), cnfe);
         }
-        final var segment = source.open(global.id());
-        final var allDeclaredFields = List.of(GeciReflectionTools.getDeclaredFieldsSorted(configClass));
-        final var fields = configurableFields(global, allDeclaredFields);
+        final Segment segment = source.open(global.id());
+        final List<Field> allDeclaredFields = GeciCompatibilityTools.createList(GeciReflectionTools.getDeclaredFieldsSorted(configClass));
+        final List<Field> fields = configurableFields(global, allDeclaredFields);
 
-        final var local = localConfig(global);
+        final Config local = localConfig(global);
         segment.param("klass", klass.getSimpleName(),
                 "access", local.configAccess,
                 "build", local.buildMethod,
@@ -103,9 +105,9 @@ public class ConfigBuilder extends AbstractJavaGenerator {
     }
 
     private void generateConfigKeySet(Segment segment, List<Field> fields) {
-        segment.write_r("private static final java.util.Set<String> implementedKeys = java.util.Set.of(");
+        segment.write_r("private static final java.util.Set<String> implementedKeys = GeciCompatibilityTools.createSet(");
         fields.forEach(field -> {
-            final var name = field.getName();
+            final String name = field.getName();
             segment.write("\"%s\",", name);
         });
         segment.write("\"id\"")
@@ -119,13 +121,13 @@ public class ConfigBuilder extends AbstractJavaGenerator {
 
     private void generateLocalConfigMethod(Segment segment, List<Field> allDeclaredFields, List<Field> fields, Class<?> configClass) {
         segment.write_r("private Config {{localConfig}}(CompoundParams params){")
-                .write("final var local = new Config();");
-        for (final var field : allDeclaredFields) {
-            final var name = field.getName();
-            final var setterName = "set" + CaseTools.ucase(name);
+                .write("final Config local = new Config();");
+        for (final Field field : allDeclaredFields) {
+            final String name = field.getName();
+            final String setterName = "set" + CaseTools.ucase(name);
             segment.param("name", name,
                     "setterName", setterName);
-            final var hasSetter = doesTheFieldHaveSetter(configClass, field, setterName);
+            final boolean hasSetter = doesTheFieldHaveSetter(configClass, field, setterName);
             if (fields.contains(field)) {
                 if (hasSetter) {
                     segment.write("local.{{setterName}}(params.get(\"{{name}}\",config.{{name}}));");
@@ -155,13 +157,13 @@ public class ConfigBuilder extends AbstractJavaGenerator {
     }
 
     private void generateBuilderMethod(Segment segment, Class<?> klass, Class<?> configClass, Field field) {
-        final var name = field.getName();
-        final var type = GeciReflectionTools.getGenericTypeName(field.getGenericType());
-        final var setterName = "set" + CaseTools.ucase(name);
+        final String name = field.getName();
+        final String type = GeciReflectionTools.getGenericTypeName(field.getGenericType());
+        final String setterName = "set" + CaseTools.ucase(name);
         segment.param("name", name,
                 "setter", setterName,
                 "type", type);
-        final var hasSetter = doesTheFieldHaveSetter(configClass, field, setterName);
+        final boolean hasSetter = doesTheFieldHaveSetter(configClass, field, setterName);
         if (!Modifier.isFinal(field.getModifiers()) || hasSetter) {
             segment.write_r("public {{Builder}} {{name}}({{type}} {{name}}) {");
             if (hasSetter) {
@@ -186,7 +188,7 @@ public class ConfigBuilder extends AbstractJavaGenerator {
 
     private void startBuilderClass(Segment segment, Class klass) {
         try {
-            final var superBuilder = Class.forName(klass.getSuperclass().getName() + "$Builder");
+            final Class<?> superBuilder = Class.forName(klass.getSuperclass().getName() + "$Builder");
             segment.write_r("public class {{Builder}} extends %s {", superBuilder.getCanonicalName());
         } catch (ClassNotFoundException cnfe) {
             segment.write_r("public class {{Builder}} {");
@@ -216,7 +218,7 @@ public class ConfigBuilder extends AbstractJavaGenerator {
     private List<Field> configurableFields(CompoundParams params, List<Field> allDeclaredFields) {
         return allDeclaredFields.stream().filter(
                 field -> {
-                    var local = localConfig(
+                    Config local = localConfig(
                             new CompoundParams(
                                     GeciReflectionTools.getParameters(field, mnemonic()
                                     ),
@@ -243,7 +245,7 @@ public class ConfigBuilder extends AbstractJavaGenerator {
         return new ConfigBuilder().new Builder();
     }
 
-    private static final java.util.Set<String> implementedKeys = java.util.Set.of(
+    private static final java.util.Set<String> implementedKeys = GeciCompatibilityTools.createSet(
             "buildMethod",
             "builderFactoryMethod",
             "builderName",
@@ -307,7 +309,7 @@ public class ConfigBuilder extends AbstractJavaGenerator {
     }
 
     private Config localConfig(CompoundParams params) {
-        final var local = new Config();
+        final Config local = new Config();
         local.buildMethod = params.get("buildMethod", config.buildMethod);
         local.builderFactoryMethod = params.get("builderFactoryMethod", config.builderFactoryMethod);
         local.builderName = params.get("builderName", config.builderName);

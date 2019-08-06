@@ -5,6 +5,7 @@ import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractFilteredFieldsGenerator;
 import javax0.geci.tools.CompoundParams;
+import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.GeciReflectionTools;
 import javax0.geci.tools.MethodTool;
 import javax0.geci.tools.reflection.Selector;
@@ -33,12 +34,12 @@ public class Delegator extends AbstractFilteredFieldsGenerator {
 
     @Override
     public void process(Source source, Class<?> klass, CompoundParams params, Field field, Segment segment) {
-        final var name = field.getName();
-        final var local = localConfig(params);
+        final String name = field.getName();
+        final Config local = localConfig(params);
         final List<Method> methods = Arrays.stream(GeciReflectionTools.getDeclaredMethodsSorted(field.getType()))
                 .filter(Selector.compile(local.methods)::match)
                 .collect(Collectors.toList());
-        for (final var method : methods) {
+        for (final Method method : methods) {
             if (!manuallyCoded(klass, method)) {
                 writeGenerated(segment, config.generatedAnnotation);
                 segment.write_r(MethodTool.with(method).signature() + " {")
@@ -55,7 +56,7 @@ public class Delegator extends AbstractFilteredFieldsGenerator {
 
     private boolean manuallyCoded(Class<?> klass, Method method) {
         try {
-            var localMethod = klass.getDeclaredMethod(method.getName(), method.getParameterTypes());
+            Method localMethod = klass.getDeclaredMethod(method.getName(), method.getParameterTypes());
             return localMethod.getDeclaredAnnotation(config.generatedAnnotation) == null;
         } catch (NoSuchMethodException e) {
             return false;
@@ -73,7 +74,7 @@ public class Delegator extends AbstractFilteredFieldsGenerator {
         return new Delegator().new Builder();
     }
 
-    private static final java.util.Set<String> implementedKeys = java.util.Set.of(
+    private static final java.util.Set<String> implementedKeys = GeciCompatibilityTools.createSet(
         "filter",
         "methods",
         "id"
@@ -104,7 +105,7 @@ public class Delegator extends AbstractFilteredFieldsGenerator {
         }
     }
     private Config localConfig(CompoundParams params){
-        final var local = new Config();
+        final Config local = new Config();
         local.filter = params.get("filter",config.filter);
         local.generatedAnnotation = config.generatedAnnotation;
         local.methods = params.get("methods",config.methods);

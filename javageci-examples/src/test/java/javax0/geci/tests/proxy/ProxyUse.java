@@ -11,7 +11,7 @@ public class ProxyUse {
         OriginalClass oc = ProxyMakerOfOrginalClass.newProxyInstance((Object original, Method method, Object[] args) ->
         {
             System.out.println("BEFORE");
-            final var retval = method.invoke(original, args);
+            final Object retval = method.invoke(original, args);
             System.out.println("AFTER");
             return retval;
         });
