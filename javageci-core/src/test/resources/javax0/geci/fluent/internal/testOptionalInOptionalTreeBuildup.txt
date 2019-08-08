@@ -10,12 +10,12 @@ public static class Wrapper implements Ukeg,Efeh,Ujaj,Acuh,Aduf,Ohug{
         this.that = new javax0.geci.fluent.internal.TestClassBuilder.TestClass();
     }
     public Wrapper b(){
-        var next = new Wrapper(that.copy());
+        Wrapper next = new Wrapper(that.copy());
         next.that.b();
         return next;
     }
     public Wrapper a(){
-        var next = new Wrapper(that.copy());
+        Wrapper next = new Wrapper(that.copy());
         next.that.a();
         return next;
     }

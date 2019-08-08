@@ -1,16 +1,16 @@
 package javax0.geci.annotations;
 
-import java.io.File;
+/*import java.io.File;
 import javax0.geci.api.GeciException;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractJavaGenerator;
 import javax0.geci.tools.CompoundParams;
-import javax0.geci.tools.GeciReflectionTools;
+import javax0.geci.tools.GeciReflectionTools;*/
 
-public class AnnotationBuilder  extends AbstractJavaGenerator {
+public class AnnotationBuilder /* extends AbstractJavaGenerator*/ {
 
 
-    private static class Config {
+    /*private static class Config {
         protected String in = null;
     }
 
@@ -35,5 +35,5 @@ public class AnnotationBuilder  extends AbstractJavaGenerator {
 
     //<editor-fold id="configBuilder">
 
-    //</editor-fold>
+    //</editor-fold>*/
 }

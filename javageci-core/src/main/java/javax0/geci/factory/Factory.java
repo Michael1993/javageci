@@ -88,7 +88,7 @@ public class Factory extends AbstractFilteredFieldsGenerator {
             return this;
         }
 
-        public BuilderBuilder generatedAnnotation(Class<? extends Annotation> generatedAnnotation) {
+        public BuilderBuilder generatedAnnotation(Class generatedAnnotation) {
             Factory.this.generatedAnnotation = generatedAnnotation;
             return this;
         }
