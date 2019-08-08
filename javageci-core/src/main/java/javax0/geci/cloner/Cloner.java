@@ -206,7 +206,7 @@ public class Cloner extends AbstractFilteredFieldsGenerator {
         final String fullyQualified = GeciReflectionTools.getSimpleGenericClassName(klass);
         segment.write_r("%s with%s(%s %s) {", fullyQualified, ucase(name), type, name);
         if (toBoolean(local.cloneWith)) {
-            segment.write("final var it = %s();", local.cloneMethod)
+            segment.write("final %s it = %s();", klass.getSimpleName(), local.cloneMethod)
                 .write("it.%s = %s;", name, name)
                 .write("return it;");
         } else {

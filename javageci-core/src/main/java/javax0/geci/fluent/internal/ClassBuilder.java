@@ -160,7 +160,7 @@ public class ClassBuilder {
     private void writeWrapperMethodBody(Method method, JavaSource.MethodBody mtBl) {
         String callString = FluentMethodTool.from(fluent.getKlass()).forThe(method).call();
         if (fluent.getCloner() != null) {
-            mtBl.statement("var next = new Wrapper(that.%s)", MethodTool.with(fluent.getCloner()).call())
+            mtBl.statement("Wrapper next = new Wrapper(that.%s)", MethodTool.with(fluent.getCloner()).call())
                 .statement("next.that.%s", callString)
                 .returnStatement("next");
 
