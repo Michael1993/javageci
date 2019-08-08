@@ -175,13 +175,13 @@ usually looks like the one that is used to create this documentation:
 
 <!-- snip TestGenerateJavageciDocumentation trim="to=0"-->
 ```java
-final var fragmentCollector = new Geci();
+final Geci fragmentCollector = new Geci();
 fragmentCollector
     .source(Source.maven().module("javageci-docugen").mainSource())
     .register(FragmentCollector.builder().build())
     .generate();
 
-final var geci = new Geci();
+final Geci geci = new Geci();
 int i = 0;
 Assertions.assertFalse(
     geci.context(fragmentCollector.context())
@@ -355,13 +355,13 @@ to create this documentation:
                                                           
 <!-- snip splitHelperRegistering snippet="TestGenerateJavageciDocumentation" trim="to=0" number="do"-->
 ```java
-1. final var fragmentCollector = new Geci();
+1. final Geci fragmentCollector = new Geci();
 2. fragmentCollector
 3.     .source(Source.maven().module("javageci-docugen").mainSource())
 4.     .register(FragmentCollector.builder().build())
 5.     .generate();
 6. 
-7. final var geci = new Geci();
+7. final Geci geci = new Geci();
 8. int i = 0;
 9. Assertions.assertFalse(
 10.     geci.context(fragmentCollector.context())
@@ -771,7 +771,7 @@ modifications on the different snippets and perform the appending afterwards.
                                         replace='|^~s*/~*||' 
                                         escape='~'"
                                         -->
-##### `snippets = List.of()`
+##### `snippets = GeciCompatibilityTools.createList()`
 
 
 This configuration parameter defines the snippets that are appended to the base snippet.

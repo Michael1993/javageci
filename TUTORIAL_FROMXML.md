@@ -97,10 +97,10 @@ different top directory.
  
 <!-- snip BeanGenerator_main2-->
 ```java
-            final var newKlass = source.getKlassSimpleName();
-            final var pckage = source.getPackageName();
-            final var target = source.newSource(set("java"), newKlass + ".java");
-            final var doc = getDocument(source);
+            final String newKlass = source.getKlassSimpleName();
+            final String pckage = source.getPackageName();
+            final Source target = source.newSource(set("java"), newKlass + ".java");
+            final Document doc = getDocument(source);
 ```
 
 In this code example when we The `source` represents the
@@ -117,8 +117,8 @@ capitalizes the first character of a string:
 <!-- snip BeanGenerator_aux-->
 ```java
     private Document getDocument(Source source) throws ParserConfigurationException, SAXException, IOException {
-        final var dbFactory = DocumentBuilderFactory.newInstance();
-        final var dBuilder = dbFactory.newDocumentBuilder();
+        final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        final DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
         return dBuilder.parse(new InputSource(new StringReader(source.toString())));
     }
 ```
@@ -134,13 +134,13 @@ analyze the data in the XML and based on this we write the class we wanted to ge
 
 <!-- snip BeanGenerator_main3-->
 ```java
-            try (final var segment = target.open()) {
+            try (final Segment segment = target.open()) {
                 segment.write("package " + pckage + ";");
                 segment.write_r("public class " + newKlass + " {");
-                var fields = doc.getElementsByTagName("field");
-                for (var index = 0; index < fields.getLength(); index++) {
-                    var field = fields.item(index);
-                    var attributes = field.getAttributes();
+                NodeList fields = doc.getElementsByTagName("field");
+                for (int index = 0; index < fields.getLength(); index++) {
+                    Node field = fields.item(index);
+                    NamedNodeMap attributes = field.getAttributes();
                     String name = attributes.getNamedItem("name").getNodeValue();
                     String type = attributes.getNamedItem("type").getNodeValue();
                     segment.write("private " + type + " " + name + ";");

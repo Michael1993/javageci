@@ -138,11 +138,13 @@ public class GeciCompatibilityTools {
         return new KeyValueHolder<>(key, value);
     }
 
+    @SafeVarargs
     public static <T> List<T> createList(T... items) {
         List<T> list = new ArrayList<>(Arrays.asList(items));
         return Collections.unmodifiableList(list);
     }
 
+    @SafeVarargs
     public static <T> Set<T> createSet(T... items) {
         final HashSet<T> ts = new HashSet<>(Arrays.asList(items));
         return Collections.unmodifiableSet(ts);
@@ -183,8 +185,8 @@ public class GeciCompatibilityTools {
 
     public static String stripTrailing(String line) {
         String result = line;
-        while (result.length() > 0 && Character.isWhitespace(result.charAt(line.length() - 1))) {
-            result = result.substring(0, line.length() - 2);
+        while (result.length() > 0 && Character.isWhitespace(result.charAt(result.length() - 1))) {
+            result = result.substring(0, result.length() - 2);
         }
         return result;
     }
