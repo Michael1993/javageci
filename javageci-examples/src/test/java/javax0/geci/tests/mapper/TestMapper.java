@@ -14,15 +14,12 @@ class TestMapper {
     void testMapper() throws Exception {
         final Geci geci = new Geci();
         Assertions.assertFalse(
-                geci.source(maven().module("javageci-examples").mainSource()).register(new Mapper()).generate(),
-                geci.failed());
-    }
-
-    @Test
-    void testEquals() throws Exception {
-        final Geci geci = new Geci();
-        Assertions.assertFalse(
-                geci.source(maven().module("javageci-examples").mainSource()).register(new Equals()).generate(),
+                geci.source(
+                    maven()
+                        .module("javageci-examples")
+                        .mainSource())
+                    .register(new Mapper())
+                    .generate(),
                 geci.failed());
     }
 }

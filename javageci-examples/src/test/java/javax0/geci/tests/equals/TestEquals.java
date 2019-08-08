@@ -13,12 +13,12 @@ public class TestEquals {
     public void testEquals() throws Exception {
         final Geci geci = new Geci();
         Assertions.assertFalse(
-                geci.source(
-                        maven()
-                                .module("javageci-examples")
-                                .mainSource())
-                        .register(Equals.builder().build())
-                        .generate(),
-                geci.failed());
+            geci.source(
+                maven()
+                    .module("javageci-examples")
+                    .mainSource())
+                .register(Equals.builder().build())
+                .generate(),
+            geci.failed());
     }
 }
