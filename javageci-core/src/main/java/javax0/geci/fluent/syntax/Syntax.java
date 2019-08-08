@@ -1,6 +1,5 @@
 package javax0.geci.fluent.syntax;
 
-import java.util.Arrays;
 import javax0.geci.api.GeciException;
 import javax0.geci.fluent.tree.FluentNodeCreator;
 import javax0.geci.fluent.tree.Node;
@@ -48,7 +47,7 @@ public class Syntax {
             return false;
         }
         if (nodes.get(0).getModifier() != Node.ONCE ||
-                nodes.get(1).getModifier() != Node.ZERO_OR_MORE) {
+            nodes.get(1).getModifier() != Node.ZERO_OR_MORE) {
             return false;
         }
         if (nodes.get(0).getClass() != nodes.get(1).getClass()) {
@@ -63,6 +62,19 @@ public class Syntax {
             final Tree t1 = (Tree) nodes.get(1);
             return t0.getList() == t1.getList();
         }
+    }
+
+    /**
+     * Creates a mutable list of the arguments. This is needed to fill in the list of the nodes in a Tree node.
+     * Optimization later changes the list.
+     *
+     * @param ts  the array of nodes to make list of
+     * @param <T> the type of the elements
+     * @return the modifiable list of nodes
+     */
+    @SafeVarargs
+    private static <T> List<T> listOf(T... ts) {
+        return new ArrayList<>(GeciCompatibilityTools.createList(ts));
     }
 
     /**
@@ -129,7 +141,7 @@ public class Syntax {
         if (nodes.size() == 1) {
             return nodes;
         } else {
-            return GeciCompatibilityTools.createList(nodeCreator.oneOfNode(nodes));
+            return listOf(nodeCreator.oneOfNode(nodes));
         }
     }
 
@@ -160,27 +172,27 @@ public class Syntax {
                 case "*":
                     lexer.get();
                     if (isOneOrMore(nodes)) {
-                        return Arrays.asList(box(nodes.get(0), Node.ZERO_OR_MORE));
+                        return listOf(box(nodes.get(0), Node.ZERO_OR_MORE));
                     }
-                    return Arrays.asList(box(node, Node.ZERO_OR_MORE));
+                    return listOf(box(node, Node.ZERO_OR_MORE));
                 case "?":
                     lexer.get();
                     if (isOneOrMore(nodes)) {
-                        return Arrays.asList(box(nodes.get(0), Node.ZERO_OR_MORE));
+                        return listOf(box(nodes.get(0), Node.ZERO_OR_MORE));
                     }
-                    return Arrays.asList(box(node, Node.OPTIONAL));
+                    return listOf(box(node, Node.OPTIONAL));
                 case "+":
                     lexer.get();
                     if (isOneOrMore(nodes)) {
                         return nodes;
                     }
                     if (node.getModifier() == Node.OPTIONAL) {
-                        return Arrays.asList(node.clone(Node.ZERO_OR_MORE));
+                        return listOf(node.clone(Node.ZERO_OR_MORE));
                     }
                     if (node.getModifier() == Node.ZERO_OR_MORE) {
                         return nodes;
                     }
-                    return Arrays.asList(node, box(node, Node.ZERO_OR_MORE));
+                    return listOf(node, box(node, Node.ZERO_OR_MORE));
             }
         }
         return nodes;
@@ -199,14 +211,14 @@ public class Syntax {
      */
     public List<Node> terminal() {
         if (lexer.peek().type == WORD) {
-            return Arrays.asList(nodeCreator.oneNode(lexer.get().string));
+            return listOf(nodeCreator.oneNode(lexer.get().string));
         }
         if (lexer.peek().type == SYMBOL && lexer.peek().string.equals("(")) {
             lexer.get();
             final List<Node> nodes = subExpression();
             if (lexer.peek().type != SYMBOL || !lexer.peek().string.equals(")")) {
                 throw new GeciException("Fluent expression syntax error after ( ... ) missing closing parenthesis at '"
-                        + lexer.rest() + "'");
+                    + lexer.rest() + "'");
             }
             lexer.get();
             return nodes;
@@ -246,7 +258,7 @@ public class Syntax {
      */
     private Node box(Node node, int modifier) {
         if (node.getModifier() == Node.ONE_OF || node.getModifier() == Node.ONE_TERMINAL_OF) {
-            return nodeCreator.oneNode(Arrays.asList(node)).clone(modifier);
+            return nodeCreator.oneNode(listOf(node)).clone(modifier);
         }
         if (node.getModifier() == Node.ZERO_OR_MORE) {
             return node;
