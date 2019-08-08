@@ -607,7 +607,9 @@ public class GeciReflectionTools {
     }
 
     public static String getPackageName(Class<?> klass) {
-        return klass.getPackage().getName();
+        if(!PRIMITIVES.containsKey(klass.getSimpleName()))
+            return klass.getPackage().getName();
+        return "";
     }
 
 }
