@@ -4,6 +4,7 @@ import java.util.HashMap;
 import javax0.geci.api.GeciException;
 import javax0.geci.fluent.Fluent;
 import javax0.geci.fluent.FluentBuilder;
+import javax0.geci.fluent.internal.FluentBuilderImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ public class TestSyntax {
     @Test
     @DisplayName("The whole syntax is defined in a single expression")
     void wholeSyntaxDefinedInOne() {
-        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilderImpl klass = (FluentBuilderImpl) FluentBuilder.from(MyClass.class);
         FluentBuilder sut = klass
                 .syntax("kw(String) ( noParameters | parameters | parameter+ )? regex* usage help executor build");
         sut.optimize();
@@ -39,8 +40,8 @@ public class TestSyntax {
     @Test
     @DisplayName("The syntax is defined in two 'syntax' parts with interface name and fluent api def in the middle")
     void splitAndMixedName() {
-        FluentBuilder klass = FluentBuilder.from(MyClass.class);
-        FluentBuilder sut = klass
+        FluentBuilderImpl klass = (FluentBuilderImpl) FluentBuilder.from(MyClass.class);
+        FluentBuilderImpl sut = (FluentBuilderImpl) klass
                 .syntax("kw(String) ( noParameters | parameters | parameter+ )?")
                 .one(klass.zeroOrMore("regex"))
                 .syntax("usage help executor")
@@ -52,7 +53,7 @@ public class TestSyntax {
     @Test
     @DisplayName("The syntax tree is flattened when there are multiple level of list of the same type")
     void flattenExpressions() {
-        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilderImpl klass = (FluentBuilderImpl) FluentBuilder.from(MyClass.class);
         FluentBuilder sut = klass
                 .oneOf(klass.oneOf("regex", "help", "executor"), klass.oneOf("usage", "kw")).one("build");
         sut.optimize();
@@ -71,7 +72,7 @@ public class TestSyntax {
     @Test
     @DisplayName("Throws exception when syntax is split in an invalid way")
     void wrongSplitting() {
-        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilderImpl klass = (FluentBuilderImpl) FluentBuilder.from(MyClass.class);
         Assertions.assertThrows(GeciException.class, () ->
                 klass.syntax("kw(String) ( noParameters | parameters | ")
                         .oneOrMore("parameter")
@@ -81,7 +82,7 @@ public class TestSyntax {
     @Test
     @DisplayName("or-ed alternatives do not need parentheses, | has higher precedence than listing")
     void syntaxExample1() {
-        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilder klass =  FluentBuilder.from(MyClass.class);
         final FluentBuilder sut = klass.syntax("kw (parameter | (usage help))");
         Assertions.assertEquals("kw (parameter|(usage help))", sut.toString());
         final FluentBuilder sutWithoutParentheses = klass.syntax("kw parameter | (usage help)");
@@ -92,7 +93,7 @@ public class TestSyntax {
     @Test
     @DisplayName("superfluous parentheses are ignored")
     void syntaxExample2() {
-        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilderImpl klass = (FluentBuilderImpl) FluentBuilder.from(MyClass.class);
         final FluentBuilder sut = klass.syntax("kw (((parameter | ((usage (help))))))");
         sut.optimize();
         Assertions.assertEquals("kw (parameter|(usage help))", sut.toString());
@@ -101,7 +102,7 @@ public class TestSyntax {
     @Test
     @DisplayName("chained modifiers are okay")
     void syntaxChainedModifier_tpq() {
-        FluentBuilder klass = FluentBuilder.from(MyClass.class);
+        FluentBuilderImpl klass = (FluentBuilderImpl) FluentBuilder.from(MyClass.class);
         final FluentBuilder sut = klass.syntax("(parameter+)?");
         sut.optimize();
         Assertions.assertEquals("parameter*", sut.toString());

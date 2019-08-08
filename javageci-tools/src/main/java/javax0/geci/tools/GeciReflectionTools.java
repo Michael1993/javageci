@@ -607,9 +607,7 @@ public class GeciReflectionTools {
     }
 
     public static String getPackageName(Class<?> klass) {
-        String canonicalName = klass.getCanonicalName();
-        String simpleName = klass.getSimpleName();
-        return canonicalName.substring(0, canonicalName.indexOf(simpleName) - 1);
+        return klass.getPackage().getName();
     }
 
 }
