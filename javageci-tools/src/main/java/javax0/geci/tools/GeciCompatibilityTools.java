@@ -139,7 +139,8 @@ public class GeciCompatibilityTools {
     }
 
     public static <T> List<T> createList(T... items) {
-        return Collections.unmodifiableList(Arrays.asList(items));
+        List<T> list = new ArrayList<>(Arrays.asList(items));
+        return Collections.unmodifiableList(list);
     }
 
     public static <T> Set<T> createSet(T... items) {

@@ -129,7 +129,7 @@ public class Syntax {
         if (nodes.size() == 1) {
             return nodes;
         } else {
-            return Arrays.asList(nodeCreator.oneOfNode(nodes));
+            return GeciCompatibilityTools.createList(nodeCreator.oneOfNode(nodes));
         }
     }
 
