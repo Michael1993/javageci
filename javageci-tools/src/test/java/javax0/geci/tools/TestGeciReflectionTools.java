@@ -7,6 +7,8 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -256,6 +258,65 @@ public class TestGeciReflectionTools {
         Assertions.assertEquals(2, gecis.length);
         Assertions.assertEquals("barbarumba k2='v2' k1='v1'", gecis[0]);
         Assertions.assertEquals("myGeci k1='v1'", gecis[1]);
+    }
+
+    @Test
+    @DisplayName("Package name for a non-primitive name is correct from getPackageName().")
+    public void correctPackageName() {
+        String packageName = GeciReflectionTools.getPackageName(TestGeciReflectionTools.class);
+        Assertions.assertEquals("javax0.geci.tools", packageName);
+    }
+
+    @Test
+    @DisplayName("getPackageName() returns empty string for primitive types.")
+    public void primitiveNoPackage() {
+        String packageName = GeciReflectionTools.getPackageName(int.class);
+        Assertions.assertEquals("", packageName);
+    }
+
+    @Test
+    @DisplayName("Mask creation is consistent with java.lang.reflect.Modifier.")
+    public void consistentMask() {
+        int mod = Modifier.PRIVATE | Modifier.STATIC | Modifier.FINAL;
+        Assertions.assertEquals(mod, GeciReflectionTools.mask("private, static, final", -1));
+    }
+
+    @Test
+    @DisplayName("Unmasking is consistent with java.lang.reflect.Modifier.")
+    public void consistentUnmask() {
+        int mod = Modifier.PRIVATE | Modifier.STATIC | Modifier.FINAL;
+        Assertions.assertArrayEquals(
+            new String[]{"final", "private", "static"},
+            Arrays.stream(GeciReflectionTools.unmask(mod).split(" ")).sorted().toArray()
+        );
+    }
+
+    @Test
+    @DisplayName("classForName() finds the proper class like Class.forName().")
+    public void findsClass() throws ClassNotFoundException {
+        final Class<?> bigDecimalClass = Class.forName("java.math.BigDecimal");
+        final Class<?> myBigDecimalClass = GeciReflectionTools.classForName("java.math.BigDecimal");
+        Assertions.assertEquals(bigDecimalClass, myBigDecimalClass);
+    }
+
+    @Test
+    @DisplayName("classForName() throws exception for bad input.")
+    public void badInput() {
+        Assertions.assertThrows(ClassNotFoundException.class, () -> GeciReflectionTools.classForName("java.lang.NoSuchLanguageElement"));
+        Assertions.assertThrows(ClassNotFoundException.class, () -> GeciReflectionTools.classForName("bool"));
+        Assertions.assertThrows(ClassNotFoundException.class, () -> GeciReflectionTools.classForName("$ßjava.String{}[]"));
+    }
+
+    @Test
+    @DisplayName("classForName() finds proper class for primitives.")
+    public void findsPrimitiveClass() throws ClassNotFoundException {
+        Assertions.assertEquals(int.class, GeciReflectionTools.classForName("int"));
+    }
+
+    @Test
+    @DisplayName("classForName() finds proper class for array types.")
+    public void findsArrayClass() throws ClassNotFoundException {
+        Assertions.assertEquals(java.lang.String[][].class, GeciReflectionTools.classForName("java.lang.String[][]"));
     }
 
     @Retention(RetentionPolicy.RUNTIME)
