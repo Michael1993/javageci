@@ -7,7 +7,7 @@ import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 
 @Geci("configBuilder localConfigMethod=''")
-public class MarkdownCodeInserter extends AbstractSnippeter implements NonConfigurable {
+public class MarkdownCodeInserter extends AbstractSnippeter {
 
     private static class Config extends AbstractSnippeter.Config {
     }

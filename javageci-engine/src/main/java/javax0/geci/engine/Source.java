@@ -77,7 +77,7 @@ public class Source implements javax0.geci.api.Source {
 
     @Override
     public void init(String id) throws IOException {
-        if (id == null || id.isEmpty()) {
+        if (id == null || id.equals("")) {
             return;
         }
         open(id);

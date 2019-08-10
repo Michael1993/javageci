@@ -33,7 +33,7 @@ public class Geci implements javax0.geci.api.Geci {
     public static final int TOUCHED = ~0x02;
     public static final int UNTOUCHED = ~0x04;
     public static final int NONE = 0xFF;
-    private static final Logger LOG = LoggerFactory.getLogger(Geci.class);
+    private static final Logger LOG = javax0.geci.log.LoggerFactory.getLogger(Geci.class);
     private final Map<Source.Set, javax0.geci.api.DirectoryLocator> directories = new HashMap<>();
     private final List<Generator> generators = new ArrayList<>();
     private final Set<Source> modifiedSources = new HashSet<>();

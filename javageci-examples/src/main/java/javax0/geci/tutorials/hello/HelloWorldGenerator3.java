@@ -1,12 +1,10 @@
 package javax0.geci.tutorials.hello;
 
-import java.lang.reflect.Method;
+import java.io.IOException;
 import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractJavaGenerator;
 import javax0.geci.tools.CompoundParams;
-
-import java.io.IOException;
 
 public class HelloWorldGenerator3 extends AbstractJavaGenerator {
     public void process(Source source, Class<?> klass, CompoundParams global)

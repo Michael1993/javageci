@@ -2,13 +2,9 @@ package javax0.geci.tools;
 
 import static javax0.geci.tools.GeciCompatibilityTools.createMap;
 
-import java.util.Collections;
-import java.util.HashMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
 
 public class TestCompoundParams {
 

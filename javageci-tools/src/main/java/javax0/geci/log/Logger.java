@@ -1,12 +1,10 @@
 package javax0.geci.log;
 
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 
 public class Logger implements javax0.geci.api.Logger {
 
     public Logger(Class<?> forClass) {
-        LogManager.getLogManager().getLogger(forClass.getName());
         this.LOGGER = java.util.logging.Logger.getLogger(forClass.getName());
     }
 

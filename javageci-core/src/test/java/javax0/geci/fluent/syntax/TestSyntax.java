@@ -5,6 +5,7 @@ import javax0.geci.api.GeciException;
 import javax0.geci.fluent.Fluent;
 import javax0.geci.fluent.FluentBuilder;
 import javax0.geci.fluent.internal.FluentBuilderImpl;
+import javax0.geci.tools.GeciCompatibilityTools;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -121,7 +122,7 @@ public class TestSyntax {
     @Test
     @DisplayName("chained modifiers are okay and are optimized")
     void syntaxChainedModifier() {
-        final Map<String, String> modifierPairs = mapFromStrings(
+        final Map<String, String> modifierPairs = GeciCompatibilityTools.createMap(
                 "**", "*",
                 "*?", "*",
                 "*+", "*",
@@ -159,17 +160,6 @@ public class TestSyntax {
             }
         }
 
-    }
-
-    private Map<String, String> mapFromStrings(String... params) {
-        if (params.length % 2 == 1) {
-            throw new IllegalArgumentException("Maps must have key-value pairs.");
-        }
-        Map<String, String> stringMap = new HashMap<>();
-        for (int i = 0; i < params.length; i += 2) {
-            stringMap.put(params[i], params[i+1]);
-        }
-        return stringMap;
     }
 
     /**

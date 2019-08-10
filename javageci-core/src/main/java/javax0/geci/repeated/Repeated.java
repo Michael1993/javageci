@@ -129,7 +129,7 @@ public class Repeated extends AbstractJavaGenerator {
         }
         for (final String key : config.templatesMap.keySet()) {
             final Segment segment;
-            if (key.isEmpty()) {
+            if (key.equals("")) {
                 segment = source.open(global.id());
             } else {
                 segment = source.open(key);

@@ -2,7 +2,6 @@ package javax0.geci.fluent.tree;
 
 import java.util.Map;
 import javax0.geci.tools.GeciCompatibilityTools;
-import javax0.geci.tools.GeciReflectionTools;
 
 /**
  * A node that describes one element in the syntax tree that describes a fluent API. A node has a modifier, like
