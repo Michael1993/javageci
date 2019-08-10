@@ -14,9 +14,6 @@ public class TestConfigBuilder {
                 geci.source(
                         "./javageci-core/src/main/java/",
                         "../javageci-core/src/main/java/")
-                    .source(
-                        "./javageci-core-annotations/src/main/java/",
-                        "../javageci-core-annotations/src/main/java/")
                         .register(ConfigBuilder.builder().build())
                         .generate(),
                 geci.failed()
