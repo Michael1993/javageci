@@ -3,7 +3,7 @@
     {GAV :{GROUPID}:javageci-parent:{VERSION}}
     {name/javageci-parent}
     {description/Java GEnerate Code Inline source code generation framework}
-    {modules|javageci-engine,javageci-api,javageci-tools,javageci-core,javageci-annotation,javageci-examples,javageci-jamal,javageci-docugen}
+    {modules|javageci-engine,javageci-api,javageci-tools,javageci-core,javageci-annotation,javageci-examples,javageci-docugen}
     {license|The Apache License, Version 2.0|http://www.apache.org/licenses/LICENSE-2.0.txt}
     {developer|Peter Verhas|peter@verhas.com}
     {github|verhas|javageci}
@@ -13,43 +13,6 @@
     {build|{pluginManagement|{plugins|
                 {plugin|
                     {GAV :org.apache.maven.plugins:maven-surefire-plugin:{SUREFIRE_VERSION}}
-                    <configuration>
-                    {@define opens(module,package)=--add-opens geci.module/javax0.geci.package=ALL-UNNAMED}
-                    {@define opensTo(module,package,to)=--add-opens geci.module/javax0.geci.package=geci.to}
-                    {@define exportsTo(module,package,to)=--add-exports geci.module/javax0.geci.package=geci.to}
-                        <argLine>
-                            {opens/api/api}
-                            {opens/tools/tools}
-                            {opens/tools/tools.syntax}
-                            {opens/tools/tools.reflection}
-                            {opens/tools/javacomparator}
-                            {opens/tools/javacomparator.lex}
-                            {opens/engine/util}
-                            {opens/engine/toolsgen}
-                            {opens/engine/engine}
-                            {opens/core/fluent.syntax}
-                            {opens/examples/tutorials.simple}
-                            {opens/examples/tutorials.hello}
-                            {opensTo/examples/tutorials.hello/tools}
-                            {opens/examples/tests.templated}
-                            {opens/examples/tests.repeated}
-                            {opens/examples/tests.mapper}
-                            {opens/examples/tests.builder}
-                            {opens/examples/buildfluent}
-                            {opens/examples/consistency}
-                            {opens/examples/tests.builder}
-                            {opens/examples/tests.cloner}
-                            {opens/examples/tests.configBuilder}
-                            {exportsTo/examples/tutorials.simple/core}
-                            {exportsTo/examples/tests.fluent/tools}
-                            {exportsTo/examples/tests.fluent/core}
-                            {exportsTo/examples/buildfluent/core}
-                            {exportsTo/examples/buildfluent/core}
-                            {opens/examples/jamal}
-                            {opens/examples/jamal.util}
-                            --add-exports geci.examples/javax0.geci.jamal.reflection=ALL-UNNAMED
-                        </argLine>
-                    </configuration>
                     {dependencies|
                         {dependency :org.junit.jupiter:junit-jupiter-engine:{JUPITER_VERSION}}
                     }
@@ -78,7 +41,7 @@
                 {plugin|
                     {GAV :org.apache.maven.plugins:maven-compiler-plugin:{MAVEN_COMPILER_PLUGIN_VERSION}}
                     <configuration>
-                        <release>{JAVA_RELEASE}</release>
+                        <source>{JAVA_RELEASE}</source>
                         <target>{JAVA_RELEASE}</target>
                     </configuration>
                 }

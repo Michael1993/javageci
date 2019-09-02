@@ -43,13 +43,13 @@ public class SimpleSample {
         public Wrapper(){
             this.that = new javax0.geci.tests.fluent.SimpleSample();
         }
+        public String got(){
+            return that.got();
+        }
         public Wrapper b(String arg1){
             Wrapper next = new Wrapper(that.copy());
             next.that.b(arg1);
             return next;
-        }
-        public String got(){
-            return that.got();
         }
         public Wrapper c(String arg1){
             Wrapper next = new Wrapper(that.copy());
@@ -59,14 +59,14 @@ public class SimpleSample {
         public String get(){
             return that.get();
         }
-        public Wrapper a(String arg1){
-            Wrapper next = new Wrapper(that.copy());
-            next.that.a(arg1);
-            return next;
-        }
         public Wrapper d(String arg1){
             Wrapper next = new Wrapper(that.copy());
             next.that.d(arg1);
+            return next;
+        }
+        public Wrapper a(String arg1){
+            Wrapper next = new Wrapper(that.copy());
+            next.that.a(arg1);
             return next;
         }
     }

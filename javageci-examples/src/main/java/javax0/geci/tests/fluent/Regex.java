@@ -77,14 +77,14 @@ public class Regex {
             next.that.oneOrMore(((Wrapper)arg1).that);
             return next;
         }
-        public Wrapper zeroOrMore(WrapperInterface arg1){
-            Wrapper next = new Wrapper(that.copy());
-            next.that.zeroOrMore(((Wrapper)arg1).that);
-            return next;
-        }
         public Wrapper optional(WrapperInterface arg1){
             Wrapper next = new Wrapper(that.copy());
             next.that.optional(((Wrapper)arg1).that);
+            return next;
+        }
+        public Wrapper zeroOrMore(WrapperInterface arg1){
+            Wrapper next = new Wrapper(that.copy());
+            next.that.zeroOrMore(((Wrapper)arg1).that);
             return next;
         }
         public java.util.regex.Pattern get(){

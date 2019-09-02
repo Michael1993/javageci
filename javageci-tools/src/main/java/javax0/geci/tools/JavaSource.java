@@ -32,27 +32,27 @@ public class JavaSource implements AutoCloseable {
             that.statement(arg1,arg2);
             return this;
         }
-        public Wrapper returnStatement(){
-            that.returnStatement();
+        public Wrapper write_r(String arg1, Object...  arg2){
+            that.write_r(arg1,arg2);
             return this;
         }
         public Wrapper forStatement(String arg1, Object...  arg2){
             that.forStatement(arg1,arg2);
             return this;
         }
-        public Wrapper write_r(String arg1, Object...  arg2){
-            that.write_r(arg1,arg2);
+        public Wrapper returnStatement(){
+            that.returnStatement();
             return this;
         }
         public String toString(){
             return that.toString();
         }
-        public Wrapper open(String arg1, Object...  arg2){
-            that.open(arg1,arg2);
-            return this;
-        }
         public Wrapper elseStatement(){
             that.elseStatement();
+            return this;
+        }
+        public Wrapper open(String arg1, Object...  arg2){
+            that.open(arg1,arg2);
             return this;
         }
         public Wrapper method(String arg1){
@@ -71,40 +71,40 @@ public class JavaSource implements AutoCloseable {
             that.comment(arg1,arg2);
             return this;
         }
-        public Wrapper modifiers(String arg1){
-            that.modifiers(arg1);
-            return this;
-        }
         public Wrapper args(String...  arg1){
             that.args(arg1);
             return this;
         }
-        public Wrapper write_l(String arg1, Object...  arg2){
-            that.write_l(arg1,arg2);
+        public Wrapper modifiers(String arg1){
+            that.modifiers(arg1);
             return this;
         }
         public Wrapper whileStatement(String arg1, Object...  arg2){
             that.whileStatement(arg1,arg2);
             return this;
         }
-        public Wrapper exceptions(String arg1){
-            that.exceptions(arg1);
+        public Wrapper write_l(String arg1, Object...  arg2){
+            that.write_l(arg1,arg2);
             return this;
         }
         public Wrapper returnType(String arg1){
             that.returnType(arg1);
             return this;
         }
+        public Wrapper exceptions(String arg1){
+            that.exceptions(arg1);
+            return this;
+        }
         public Wrapper write(String arg1, Object...  arg2){
             that.write(arg1,arg2);
             return this;
         }
-        public void close(){
-            that.close();
-        }
         public Wrapper newline(){
             that.newline();
             return this;
+        }
+        public void close(){
+            that.close();
         }
     }
     public interface Aduf {
@@ -215,6 +215,7 @@ public class JavaSource implements AutoCloseable {
     public interface Afube extends Udoh,Oded,Abok,Efeh,Ujaj,Ogoj,AutoCloseable,Ehebe,Edak,Acuh,Ohug,Agak{
     }
     public interface Ukeg extends Afube,AutoCloseable,Aduf {}
+
     //</editor-fold>
 
     /**

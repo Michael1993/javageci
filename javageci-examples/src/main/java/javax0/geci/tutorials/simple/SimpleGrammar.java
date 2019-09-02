@@ -39,16 +39,16 @@ public class SimpleGrammar {
             that.word2();
             return this;
         }
-        public void end(){
-            that.end();
+        public Wrapper singleWord(){
+            that.singleWord();
+            return this;
         }
         public Wrapper word3(){
             that.word3();
             return this;
         }
-        public Wrapper singleWord(){
-            that.singleWord();
-            return this;
+        public void end(){
+            that.end();
         }
     }
     public interface Aduf {

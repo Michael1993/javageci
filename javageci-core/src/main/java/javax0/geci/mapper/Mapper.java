@@ -1,6 +1,11 @@
 package javax0.geci.mapper;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.function.Function;
 import javax0.geci.api.Segment;
 import javax0.geci.api.Source;
 import javax0.geci.tools.AbstractJavaGenerator;
@@ -8,14 +13,6 @@ import javax0.geci.tools.CompoundParams;
 import javax0.geci.tools.GeciCompatibilityTools;
 import javax0.geci.tools.GeciReflectionTools;
 import javax0.geci.tools.reflection.Selector;
-import javax0.jamal.Format;
-import javax0.jamal.api.BadSyntax;
-
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Code generator class that generates toMap and fromMap methods that will convert the object and possibly contained
@@ -96,11 +93,15 @@ public class Mapper extends AbstractJavaGenerator {
                 "HashMap", "java.util.HashMap"
         );
         final String rawContent = segment.getContent();
-        try {
-            segment.setContent(Format.format(rawContent, placeHolders));
-        } catch (BadSyntax badSyntax) {
-            throw new IOException(badSyntax);
+        segment.setContent(formatContent(rawContent, placeHolders));
+    }
+
+    private String formatContent(String raw, Map<String, String> placeholders) {
+        String formatted = raw;
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            formatted = formatted.replaceAll("\\{\\{" + entry.getKey() + "\\}\\}", entry.getValue());
         }
+        return formatted;
     }
 
     private void generateToMap(Source source, Class<?> klass, CompoundParams global) throws Exception {

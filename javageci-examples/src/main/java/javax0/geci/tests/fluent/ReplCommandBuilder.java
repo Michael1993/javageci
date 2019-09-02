@@ -106,27 +106,27 @@ public class ReplCommandBuilder {
             that.noParameters();
             return this;
         }
-        public Wrapper kw(String arg1){
-            that.kw(arg1);
-            return this;
-        }
         public javax0.geci.tests.fluent.ReplCommandBuilder.CommandDefinition build(){
             return that.build();
         }
-        public Wrapper parameters(java.util.Set<String> arg1){
-            that.parameters(arg1);
+        public Wrapper kw(String arg1){
+            that.kw(arg1);
             return this;
         }
         public Wrapper regex(String arg1, String arg2){
             that.regex(arg1,arg2);
             return this;
         }
-        public Wrapper parameter(String arg1){
-            that.parameter(arg1);
+        public Wrapper parameters(java.util.Set<String> arg1){
+            that.parameters(arg1);
             return this;
         }
         public Wrapper executor(java.util.function.Consumer<javax0.geci.tests.fluent.ReplCommandBuilder.CommandEnvironment> arg1){
             that.executor(arg1);
+            return this;
+        }
+        public Wrapper parameter(String arg1){
+            that.parameter(arg1);
             return this;
         }
     }
