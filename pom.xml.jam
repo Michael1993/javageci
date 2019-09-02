@@ -79,6 +79,7 @@
                     {GAV :org.apache.maven.plugins:maven-compiler-plugin:{MAVEN_COMPILER_PLUGIN_VERSION}}
                     <configuration>
                         <release>{JAVA_RELEASE}</release>
+                        <target>{JAVA_RELEASE}</target>
                     </configuration>
                 }
             }
