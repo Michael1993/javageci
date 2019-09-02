@@ -9,7 +9,7 @@
     <version>1.2.0</version>
 
     <parent>
-    <groupId>com.javax0.geci</groupId>
+    <groupId>com.javax1.geci</groupId>
     <artifactId>javageci-parent</artifactId>
     <version>1.2.0</version>
 

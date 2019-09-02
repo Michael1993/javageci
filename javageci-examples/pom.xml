@@ -9,7 +9,7 @@
     <version>1.2.0</version>
 
     <parent>
-    <groupId>com.javax0.geci</groupId>
+    <groupId>com.javax1.geci</groupId>
     <artifactId>javageci-parent</artifactId>
     <version>1.2.0</version>
 
@@ -39,31 +39,31 @@
         
             
 <dependency>
-    <groupId>com.javax0.geci</groupId>
+    <groupId>com.javax1.geci</groupId>
     <artifactId>javageci-api</artifactId>
     
 </dependency>
             
 <dependency>
-    <groupId>com.javax0.geci</groupId>
+    <groupId>com.javax1.geci</groupId>
     <artifactId>javageci-core</artifactId>
     
 </dependency>
             
 <dependency>
-    <groupId>com.javax0.geci</groupId>
+    <groupId>com.javax1.geci</groupId>
     <artifactId>javageci-engine</artifactId>
     
 </dependency>
             
 <dependency>
-    <groupId>com.javax0.geci</groupId>
+    <groupId>com.javax1.geci</groupId>
     <artifactId>javageci-tools</artifactId>
     
 </dependency>
             
 <dependency>
-    <groupId>com.javax0.geci</groupId>
+    <groupId>com.javax1.geci</groupId>
     <artifactId>javageci-annotation</artifactId>
     
 </dependency>
