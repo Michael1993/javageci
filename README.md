@@ -2,6 +2,8 @@
 
 Java Generate Code Inline
 
+### This is a backport to Java 8. You can read the backport specific info [here](BACKPORT.md)
+
 Java::Geci is a library for generating Java code. Code generation programs
 implemented using Java::Geci can be executed to generate new source code
 or modify existing Java source files. This way the programmer can use
